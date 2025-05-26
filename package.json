@@ -1,8 +1,32 @@
 {
   "name": "@replyke/server",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "private": false,
   "license": "AGPL-3.0-only",
+  "author": "Replyke, maintained by Yanay Tsabary",
+  "description": "Replyke: Build interactive apps with social features like comments, votes, feeds, user lists, notifications, and more.",
+  "keywords": [
+    "replyke",
+    "social",
+    "comments",
+    "reactions",
+    "moderation",
+    "reporting",
+    "upvotes",
+    "downvotes",
+    "react",
+    "react-native",
+    "expo",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://discord.com/invite/REKxnCJzPz"
+  },
+  "homepage": "https://replyke.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/replyke/express.git"
+  },
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
