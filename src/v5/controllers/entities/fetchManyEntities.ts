@@ -331,44 +331,49 @@ const configureMetadata = (
     throw new Error("Invalid metadata filter: must be a non-null JSON object");
   }
 
-  const {
-    // contains,
-    // doesNotContain,
-    includes,
-    doesNotInclude,
-    doesNotExist,
-    exists,
-  } = metadataFilters as any;
+  const { includes, includesAny, doesNotInclude, doesNotExist, exists } =
+    metadataFilters as any;
 
   // Initialize a Sequelize `Op.and` array to build complex conditions
   const metadataConditions = [];
 
-  // Helper function to serialize values (e.g., convert "true" -> true, "false" -> false)
-  const serializeValues = (filterObject: Record<string, any>) => {
-    Object.keys(filterObject).forEach((key) => {
-      if (filterObject[key] === "true") {
-        filterObject[key] = true;
-      } else if (filterObject[key] === "false") {
-        filterObject[key] = false;
-      }
+  // Helper: convert "true"/"false" strings into booleans, leave other values alone
+  const serializeValues = (obj: Record<string, any>) => {
+    Object.keys(obj).forEach((key) => {
+      if (obj[key] === "true") obj[key] = true;
+      else if (obj[key] === "false") obj[key] = false;
     });
-    return filterObject;
+    return obj;
   };
 
-  // Handle 'includes'
-  if (includes && typeof includes === "object") {
-    const serializedIncludes = serializeValues({ ...includes });
+  // 1) AND-semantics for `includes` (all key/value pairs must match)
+  if (typeof includes === "object" && Object.keys(includes).length) {
+    const serialized = serializeValues({ ...includes });
     metadataConditions.push(
       sequelize.literal(
-        `"Entity"."metadata" @> '${JSON.stringify(serializedIncludes)}'`
+        `"Entity"."metadata" @> '${JSON.stringify(serialized)}'`
       )
     );
   }
 
-  // Handle 'doesNotInclude'
-  if (doesNotInclude && typeof doesNotInclude === "object") {
-    const serializedNotIncludes = serializeValues({ ...doesNotInclude });
-    Object.entries(serializedNotIncludes).forEach(([key, value]) => {
+  // 2) OR-semantics for `includesAny` (at least one of these maps must match)
+  if (Array.isArray(includesAny) && includesAny.length) {
+    const orLiterals = includesAny.map((cond) => {
+      const serialized = serializeValues({ ...cond });
+      return sequelize.literal(
+        `"Entity"."metadata" @> '${JSON.stringify(serialized)}'`
+      );
+    });
+    metadataConditions.push({ [Op.or]: orLiterals });
+  }
+
+  // 3) doesNotInclude (none of these key/value pairs may match)
+  if (
+    typeof doesNotInclude === "object" &&
+    Object.keys(doesNotInclude).length
+  ) {
+    const serialized = serializeValues({ ...doesNotInclude });
+    Object.entries(serialized).forEach(([key, value]) => {
       metadataConditions.push(
         sequelize.literal(
           `NOT ("Entity"."metadata" @> '{"${key}": ${JSON.stringify(value)}}')`
@@ -377,7 +382,7 @@ const configureMetadata = (
     });
   }
 
-  // Handle 'doesNotExist'
+  // 4a) exists: these keys must exist in the JSONB
   if (Array.isArray(doesNotExist)) {
     doesNotExist.forEach((key) => {
       metadataConditions.push(
@@ -386,7 +391,7 @@ const configureMetadata = (
     });
   }
 
-  // Handle 'exists'
+  // 4b) doesNotExist: these keys must NOT exist
   if (Array.isArray(exists)) {
     exists.forEach((key) => {
       metadataConditions.push(
@@ -482,7 +487,6 @@ export default async (req: ExReq, res: ExRes) => {
     );
     configureLocation(query, locationFilters as undefined);
     configureFollowedOnly(query, followedOnly as string, loggedInUserId);
-
 
     // Perform the query on the Entity model with pagination, sorting, and filtering
     const entities = (await Entity.findAll({
