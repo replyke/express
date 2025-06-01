@@ -38,7 +38,8 @@ export default async (req: ExReq, res: ExRes) => {
     if (
       userIdProp !== undefined &&
       userIdProp !== loggedInUserId &&
-      !req.isMaster
+      !req.isMaster &&
+      !req.isService
     ) {
       res.status(403).json({
         error: "User is not authorized to create this entity.",

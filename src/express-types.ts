@@ -8,6 +8,7 @@ declare global {
       project: IProject;
       userRole: "admin" | "editor" | "visitor";
       isMaster: boolean;
+      isService: boolean;
     }
   }
 }
