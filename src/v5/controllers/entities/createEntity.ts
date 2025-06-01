@@ -34,6 +34,8 @@ export default async (req: ExReq, res: ExRes) => {
     const loggedInUserId = req.userId;
     const projectId = req.project.id!;
 
+    console.log({ userIdProp });
+
     // UserId doesn't have to be provided, as some entities can just be automatically created when a user visits. But if a userId is provided as the user that created the entity, then it must match the logged in user ID.
     if (
       userIdProp !== undefined &&
@@ -49,6 +51,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     const userId = excludeUserId ? undefined : userIdProp ?? loggedInUserId;
+    console.log({ userId });
 
     const newEntityData: Partial<IEntity> & { projectId: string } = {
       projectId,
