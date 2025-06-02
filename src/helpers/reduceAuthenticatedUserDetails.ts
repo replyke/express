@@ -12,6 +12,7 @@ export default function reduceAuthenticatedUserDetails(
     name: user.name,
     username: user.username,
     avatar: user.avatar,
+    bio: user.bio,
     metadata: user.metadata,
     reputation: user.reputation,
     isVerified: user.isVerified,
