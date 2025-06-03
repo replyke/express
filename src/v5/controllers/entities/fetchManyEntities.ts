@@ -332,7 +332,7 @@ const configureMetadata = (
   }
 
   const { includes, includesAny, doesNotInclude, doesNotExist, exists } =
-    metadataFilters as any;
+    metadataFilters ;
 
   // Initialize a Sequelize `Op.and` array to build complex conditions
   const metadataConditions = [];
