@@ -43,7 +43,12 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
-    if (entity.userId && entity.userId !== loggedInUserId && !req.isMaster) {
+    if (
+      entity.userId &&
+      entity.userId !== loggedInUserId &&
+      !req.isMaster &&
+      !req.isService
+    ) {
       res.status(403).json({
         error: "Not authorized to update this entity.",
         code: "entity/not-authorized",
