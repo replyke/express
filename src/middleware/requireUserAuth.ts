@@ -12,7 +12,7 @@ const requireUserAuth: RequestHandler = (
   res: ExRes,
   next: NextFunction
 ) => {
-  if (req.isMaster) {
+  if (req.isMaster || req.isService) {
     next();
     return;
   }

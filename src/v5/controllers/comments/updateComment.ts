@@ -37,7 +37,7 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
-    if (comment.userId !== loggedInUserId && !req.isMaster) {
+    if (comment.userId !== loggedInUserId && !req.isMaster && !req.isService) {
       res.status(403).json({
         error: "You do not have permission to update this comment.",
         code: "comment/forbidden",

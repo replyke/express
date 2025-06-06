@@ -57,7 +57,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     let userId: string | null = null;
-    if (req.isMaster && userIdProp) {
+    if ((req.isMaster || req.isService) && userIdProp) {
       userId = userIdProp;
     } else if (loggedInUserId) {
       userId = loggedInUserId;
