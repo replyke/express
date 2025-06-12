@@ -1,6 +1,6 @@
+import { Sequelize } from "sequelize";
 import { Literal } from "sequelize/types/utils";
 import { User } from "../models";
-import { Sequelize } from "sequelize";
 
 export const commentParams = {
   attributes: {
