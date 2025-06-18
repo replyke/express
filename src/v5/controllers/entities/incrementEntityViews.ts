@@ -3,6 +3,8 @@ import { Entity } from "../../../models";
 
 export default async (req: ExReq, res: ExRes) => {
   const { entityId } = req.params;
+  const { count = 1 } = req.query;
+
   const projectId = req.project.id;
 
   if (!entityId) {
@@ -10,6 +12,15 @@ export default async (req: ExReq, res: ExRes) => {
       error: "Invalid entity ID.",
       code: "entity/invalid-id",
     });
+    return;
+  }
+
+  const countNum = parseInt(count as string, 10);
+
+  if (isNaN(countNum) || countNum < 1) {
+    res
+      .status(400)
+      .json({ error: "Invalid views count", code: "entity/invalid-count" });
     return;
   }
 
@@ -25,7 +36,9 @@ export default async (req: ExReq, res: ExRes) => {
 
     // 2) Increment its `views` field by 1
     //    TS knows this returns a Promise<Model> on Postgres
-    const updatedEntity = await entity.increment("views", { by: 1 });
+    const updatedEntity = await entity.increment("views", {
+      by: req.isService ? countNum : 1,
+    });
 
     // 3) Send it right back
     res.status(200).json(updatedEntity.toJSON());
