@@ -12,7 +12,6 @@ export default async (req: ExReq, res: ExRes) => {
     const { foreignId, createIfNotFound } = req.query;
     const projectId = req.project.id!;
 
-    console.log("In the fetch foreign id", { foreignId });
     // Validate the presence of projectId and either foreignId or entityId.
     if (foreignId && typeof foreignId !== "string") {
       res.status(400).json({
@@ -21,7 +20,6 @@ export default async (req: ExReq, res: ExRes) => {
       });
       return;
     }
-    console.log("It was a valid foreign id");
 
     let entity: IEntity | null = (await Entity.findOne({
       where: { projectId, foreignId },
@@ -51,8 +49,6 @@ export default async (req: ExReq, res: ExRes) => {
       await handlers.createEntity({ projectId });
     }
 
-    console.log("Found or created and entity: ", !!entity);
-
     if (!entity) {
       res.status(404).json({
         error: "Entity not found",
@@ -64,8 +60,6 @@ export default async (req: ExReq, res: ExRes) => {
     // Convert entity to plain JSON for scoring.
     const entityData: IEntityAttributes & { repliesCount: number } =
       entity.toJSON();
-
-    console.log("Returning entity data");
 
     // Return the entity with a 200 (OK) status.
     res.status(200).json(entityData);
