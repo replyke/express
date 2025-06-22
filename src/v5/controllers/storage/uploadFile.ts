@@ -59,18 +59,21 @@ export default async (req: ExReq, res: ExRes) => {
     const completePathParts = [...finalPathParts, finalFileName];
 
     // Call createFile with the complete path and file buffer
-    const { publicPath, path, id } = await createFile(
+    const {
+      publicPath,
+      path: relativePath,
+      id: fileId,
+    } = await createFile(
       projectId,
       completePathParts,
       file.buffer,
       file.mimetype
     );
 
-    const relativePath = path;
-
-    const fileId: string = id;
-
     handlers.uploadFile({ projectId, fileSize: file.size });
+
+    const proxyPath = "https://api.replyke.com/internal/files/";
+    console.log({ relativePath, path: proxyPath + relativePath });
 
     // Return a success response
     res.status(201).json({
