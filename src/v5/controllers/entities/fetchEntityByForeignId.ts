@@ -21,7 +21,6 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
-    console.log("Trying to find an entity");
     let entity: IEntity | null = (await Entity.findOne({
       where: { projectId, foreignId },
       ...entityParams,
@@ -57,7 +56,6 @@ export default async (req: ExReq, res: ExRes) => {
       });
       return;
     }
-    console.log("Found an entity:", !!entity);
 
     // Convert entity to plain JSON for scoring.
     const entityData: IEntityAttributes & { repliesCount: number } =
