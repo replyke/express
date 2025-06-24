@@ -49,7 +49,6 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     const userId = excludeUserId ? undefined : userIdProp ?? loggedInUserId;
-    console.log({ userId });
 
     const newEntityData: Partial<IEntity> & { projectId: string } = {
       projectId,
