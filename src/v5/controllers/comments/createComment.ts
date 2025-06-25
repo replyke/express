@@ -30,6 +30,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     // Validate the presence of required fields.
     if (!entityId) {
+      console.log("Create comment error: missing entity ID");
       res.status(400).json({
         error: "Missing entity ID",
         code: "comment/missing-entity-id",
@@ -37,6 +38,8 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
     if (!content && !gif) {
+      console.log("Create comment error: missing required comment content");
+
       res.status(400).json({
         error: "Missing required comment content",
         code: "comment/missing-content",
@@ -64,6 +67,12 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     if (!userId) {
+      console.log("Create comment error: missing user id", {
+        "req.isMaster": req.isMaster,
+        "req.isService": req.isService,
+        userIdProp,
+      });
+
       res.status(400).json({
         error: "Missing user ID",
         code: "comment/missing-user-id",
