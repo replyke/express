@@ -22,24 +22,24 @@ import { rateLimiter } from "../../utils/rateLimit";
 const router: Router = Router();
 
 // Route to create a new entity
-router.post("/", rateLimiter("10m", 100), optionalUserAuth, createEntity);
+router.post("/", rateLimiter("5m", 100), optionalUserAuth, createEntity);
 
 // Route to fetch a many entities with filtering and pagination
-router.get("/", rateLimiter("10m", 50), optionalUserAuth, fetchManyEntities);
+router.get("/", rateLimiter("5m", 100), optionalUserAuth, fetchManyEntities);
 
 // Route to fetch a single entity by its foreign ID, or create a new blank one if desired and it doesn't exist.
-router.get("/by-foreign-id", rateLimiter("10m", 1000), fetchEntityByForeignId);
+router.get("/by-foreign-id", rateLimiter("5m", 1000), fetchEntityByForeignId);
 
 // Route to fetch a single entity by its short ID
-router.get("/by-short-id", rateLimiter("10m", 1000), fetchEntityByShortId);
+router.get("/by-short-id", rateLimiter("5m", 1000), fetchEntityByShortId);
 
 // Route to fetch a single entity by its ID
-router.get("/:entityId", rateLimiter("10m", 1000), fetchEntity);
+router.get("/:entityId", rateLimiter("5m", 1000), fetchEntity);
 
 // Route to upvote an entity.
 router.patch(
   "/:entityId/upvote",
-  rateLimiter("10m", 100),
+  rateLimiter("5m", 100),
   requireUserAuth,
   upvoteEntity
 );
@@ -47,7 +47,7 @@ router.patch(
 // Route to remove upvote from entity.
 router.patch(
   "/:entityId/remove-upvote",
-  rateLimiter("10m", 50),
+  rateLimiter("5m", 50),
   requireUserAuth,
   removeEntityUpvote
 );
@@ -55,7 +55,7 @@ router.patch(
 // Route to downvote an entity.
 router.patch(
   "/:entityId/downvote",
-  rateLimiter("10m", 100),
+  rateLimiter("5m", 100),
   requireUserAuth,
   downvoteEntity
 );
@@ -71,14 +71,14 @@ router.patch(
 // Route to increment views of an entity.
 router.patch(
   "/:entityId/increment-views",
-  rateLimiter("10m", 1000),
+  rateLimiter("5m", 1000),
   incrementEntityViews
 );
 
 // Route to update an entity
 router.patch(
   "/:entityId",
-  rateLimiter("10m", 200),
+  rateLimiter("5m", 200),
   requireUserAuth,
   updateEntity
 );
@@ -86,7 +86,7 @@ router.patch(
 // Route to delete an entity
 router.delete(
   "/:entityId",
-  rateLimiter("10m", 50),
+  rateLimiter("5m", 10),
   requireUserAuth,
   deleteEntity
 );

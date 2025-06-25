@@ -50,13 +50,13 @@ router.post(
   "/request-new-access-token",
   rateLimiter(
     "5m",
-    25,
+    50,
     "Too many attempts to request a new access token, please wait 5 minutes"
   ),
   requestNewAccessToken
 );
 
 // Use refresh token to issue a new access token
-router.post("/verify-external-user", rateLimiter("5m", 25), verifyExternalUser);
+router.post("/verify-external-user", rateLimiter("5m", 50), verifyExternalUser);
 
 export default router;
