@@ -107,9 +107,6 @@ export default async (req: ExReq, res: ExRes) => {
       user: reducedAuthenticatedUser,
     });
 
-    userWithSuspensions.lastActive = new Date();
-    userWithSuspensions.save();
-
     const { handlers } = getCoreConfig();
     await handlers.requestNewAccessToken({ projectId, userId });
   } catch (err: any) {
