@@ -141,6 +141,17 @@ export default class Comment
         tableName: "Comments",
         timestamps: true,
         paranoid: true,
+        indexes: [
+          {
+            fields: ["projectId"],
+          },
+          {
+            fields: ["entityId"],
+          },
+          {
+            fields: ["parentId"],
+          },
+        ],
       }
     );
   }
