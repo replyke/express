@@ -18,6 +18,7 @@ import requireUserAuth from "../../middleware/requireUserAuth";
 import optionalUserAuth from "../../middleware/optionalUserAuth";
 
 import { rateLimiter } from "../../utils/rateLimit";
+import fetchTopComment from "../controllers/entities/fetchTopComment";
 
 const router: Router = Router();
 
@@ -35,6 +36,8 @@ router.get("/by-short-id", rateLimiter("5m", 1000), fetchEntityByShortId);
 
 // Route to fetch a single entity by its ID
 router.get("/:entityId", rateLimiter("5m", 1000), fetchEntity);
+
+router.get("/:entityId/top-comment", fetchTopComment);
 
 // Route to upvote an entity.
 router.patch(

@@ -51,32 +51,6 @@ export const entityParams = {
         )`),
         "repliesCount",
       ] as [Literal, string],
-      [
-        // Subquery to get the topComment with user details
-        Sequelize.literal(`(
-          SELECT row_to_json(c)
-          FROM (
-            SELECT 
-              "comment"."id",
-              "comment"."content",
-              array_length("comment"."upvotes", 1) AS "upvotesCount",
-              json_build_object(
-                'id', "user"."id",
-                'name', "user"."name",
-                'username', "user"."username",
-                'avatar', "user"."avatar"
-              ) AS "user"
-            FROM "Comments" AS "comment"
-            LEFT JOIN "Users" AS "user" ON "user"."id" = "comment"."userId"
-            WHERE "comment"."entityId" = "Entity"."id"
-            AND "comment"."deletedAt" IS NULL
-            AND "comment"."parentDeletedAt" IS NULL
-            ORDER BY array_length("comment"."upvotes", 1) DESC
-            LIMIT 1
-          ) c
-        )`),
-        "topComment",
-      ] as [Literal, string],
     ],
   },
   include: [
@@ -97,3 +71,32 @@ export const entityParams = {
     },
   ],
 };
+
+
+// ** This was part of the entityParams to also attach top comment to each entity but it slows things down
+// [
+//   // Subquery to get the topComment with user details
+//   Sequelize.literal(`(
+//     SELECT row_to_json(c)
+//     FROM (
+//       SELECT 
+//         "comment"."id",
+//         "comment"."content",
+//         array_length("comment"."upvotes", 1) AS "upvotesCount",
+//         json_build_object(
+//           'id', "user"."id",
+//           'name', "user"."name",
+//           'username', "user"."username",
+//           'avatar', "user"."avatar"
+//         ) AS "user"
+//       FROM "Comments" AS "comment"
+//       LEFT JOIN "Users" AS "user" ON "user"."id" = "comment"."userId"
+//       WHERE "comment"."entityId" = "Entity"."id"
+//       AND "comment"."deletedAt" IS NULL
+//       AND "comment"."parentDeletedAt" IS NULL
+//       ORDER BY array_length("comment"."upvotes", 1) DESC
+//       LIMIT 1
+//     ) c
+//   )`),
+//   "topComment",
+// ] as [Literal, string],

@@ -332,7 +332,7 @@ const configureMetadata = (
   }
 
   const { includes, includesAny, doesNotInclude, doesNotExist, exists } =
-    metadataFilters ;
+    metadataFilters;
 
   // Initialize a Sequelize `Op.and` array to build complex conditions
   const metadataConditions = [];
@@ -497,7 +497,12 @@ export default async (req: ExReq, res: ExRes) => {
       ...entityParams,
     })) as IEntity[];
 
-    res.status(200).json(entities.map((entity) => entity.toJSON()));
+    res.status(200).json(
+      entities.map((entity) => ({
+        ...entity.toJSON(),
+        topComment: null, // ensure shape is preserved
+      }))
+    );
 
     // Schedule scoring updates asynchronously
     setImmediate(async () => {
