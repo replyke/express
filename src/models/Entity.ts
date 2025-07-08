@@ -252,6 +252,26 @@ export default class Entity
             fields: ["keywords"],
             using: "gin",
           },
+
+          {
+            name: "idx_entities_feed",
+            fields: [
+              { name: "projectId" },
+              { name: "sourceId" },
+              { name: "createdAt", order: "DESC" },
+            ],
+            where: {
+              deletedAt: null,
+            },
+          },
+
+          {
+            name: "idx_entities_by_shortid",
+            fields: [{ name: "projectId" }, { name: "shortId" }],
+            where: {
+              deletedAt: null,
+            },
+          },
         ],
       }
     );

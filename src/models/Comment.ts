@@ -151,6 +151,23 @@ export default class Comment
           {
             fields: ["parentId"],
           },
+          // make the comment‐count scan index‐only
+          {
+            name: "idx_comments_active",
+            fields: ["entityId"],
+            where: {
+              deletedAt: null,
+              parentDeletedAt: null,
+            },
+          },
+          {
+            name: "idx_comments_active_parent",
+            fields: ["parentId"],
+            where: {
+              deletedAt: null,
+              parentDeletedAt: null,
+            },
+          },
         ],
       }
     );
