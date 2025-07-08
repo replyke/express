@@ -235,6 +235,13 @@ export default class Entity
         paranoid: true,
         indexes: [
           { unique: true, fields: ["projectId", "referenceId"] },
+          {
+            name: "idx_entities_by_foreignId",
+            fields: ["projectId", "foreignId"],
+            where: {
+              deletedAt: null,
+            },
+          },
           { unique: true, fields: ["projectId", "shortId"] },
           { fields: ["location"], using: "gist" },
           { fields: ["score"] },

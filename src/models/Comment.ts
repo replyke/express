@@ -168,6 +168,18 @@ export default class Comment
               parentDeletedAt: null,
             },
           },
+
+          {
+            name: "idx_comments_list",
+            fields: [
+              { name: "projectId" },
+              { name: "entityId" },
+              { name: "createdAt", order: "DESC" },
+            ],
+            where: {
+              deletedAt: null,
+            },
+          },
         ],
       }
     );
