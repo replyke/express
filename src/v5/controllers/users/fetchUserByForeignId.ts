@@ -24,10 +24,11 @@ export default async (req: ExReq, res: ExRes) => {
     const { foreignId, createIfNotFound } = req.query;
 
     if (!foreignId || typeof foreignId !== "string") {
-      return res.status(400).json({
+      res.status(400).json({
         error: "Missing or invalid foreign user ID.",
         code: "user/invalid-identifier",
       });
+      return;
     }
 
     const projectId = req.project.id;
@@ -86,19 +87,21 @@ export default async (req: ExReq, res: ExRes) => {
           },
         });
 
-        return res.status(201).json(cleanUser?.toJSON());
+        res.status(201).json(cleanUser?.toJSON());
+        return;
       }
 
-      return res.status(404).json({
+      res.status(404).json({
         error: "User not found",
         code: "user/not-found",
       });
+      return;
     }
 
-    return res.status(200).json(user.toJSON());
+    res.status(200).json(user.toJSON());
   } catch (err: any) {
     console.error("Error fetching or creating user:", err);
-    return res.status(500).json({
+    res.status(500).json({
       error: "Internal server error",
       code: "user/server-error",
       details: err.message,
