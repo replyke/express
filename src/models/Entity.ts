@@ -217,10 +217,12 @@ export default class Entity
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
+          defaultValue: DataTypes.NOW,
         },
         updatedAt: {
           type: DataTypes.DATE,
           allowNull: false,
+          defaultValue: DataTypes.NOW,
         },
         deletedAt: {
           type: DataTypes.DATE,
@@ -231,7 +233,7 @@ export default class Entity
         sequelize,
         modelName: "Entity",
         tableName: "Entities",
-        timestamps: true,
+        timestamps: false,
         paranoid: true,
         indexes: [
           { unique: true, fields: ["projectId", "referenceId"] },
@@ -288,6 +290,13 @@ export default class Entity
       if (!instance.shortId) {
         // id will have its defaultValue (UUIDV4) applied already
         instance.shortId = ShortUniqueId().fromUUID(instance.id!);
+      }
+    });
+
+    // On update: only overwrite updatedAt *if* the user didn’t explicitly set it.
+    Entity.beforeUpdate((inst) => {
+      if (!inst.changed("updatedAt")) {
+        inst.setDataValue("updatedAt", new Date());
       }
     });
   }

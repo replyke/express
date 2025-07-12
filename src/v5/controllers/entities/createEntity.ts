@@ -29,6 +29,7 @@ export default async (req: ExReq, res: ExRes) => {
       metadata,
       excludeUserId,
       createdAt,
+      updatedAt,
     } = req.body;
 
     const loggedInUserId = req.userId;
@@ -69,6 +70,42 @@ export default async (req: ExReq, res: ExRes) => {
         : undefined,
       metadata,
     };
+
+    // Only master/service may even attempt to set createdAt or updatedAt
+    if (req.isMaster || req.isService) {
+      // parse timestamps if provided
+      const tsCreated = createdAt ? new Date(createdAt) : undefined;
+      const tsUpdated = updatedAt ? new Date(updatedAt) : undefined;
+
+      // updatedAt but no createdAt ⇒ error
+      if (tsUpdated && !tsCreated) {
+        res.status(400).json({
+          error: "Cannot set updatedAt without also setting createdAt.",
+          code: "entity/invalid-timestamp",
+        });
+        return;
+      }
+
+      if (tsCreated) {
+        // set createdAt
+        newEntityData.createdAt = tsCreated;
+
+        if (tsUpdated) {
+          // 4) both passed ⇒ updatedAt must be ≥ createdAt
+          if (tsUpdated < tsCreated) {
+            res.status(400).json({
+              error: "updatedAt must be the same or after createdAt.",
+              code: "entity/invalid-timestamp",
+            });
+            return;
+          }
+          newEntityData.updatedAt = tsUpdated;
+        } else {
+          // 3) createdAt passed but no updatedAt ⇒ mirror createdAt
+          newEntityData.updatedAt = tsCreated;
+        }
+      }
+    }
 
     const { projectId: _, ...restOfEntityData } = newEntityData;
 
