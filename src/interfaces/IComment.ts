@@ -34,6 +34,8 @@ export interface ICommentCreationAttributes
     | "mentions"
     | "upvotes"
     | "downvotes"
+    | "attachments"
+    | "metadata"
     | "parentDeletedAt"
     | "createdAt"
     | "updatedAt"

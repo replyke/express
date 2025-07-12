@@ -125,10 +125,12 @@ export default class Comment
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
+          defaultValue: DataTypes.NOW,
         },
         updatedAt: {
           type: DataTypes.DATE,
           allowNull: false,
+          defaultValue: DataTypes.NOW,
         },
         deletedAt: {
           type: DataTypes.DATE,
@@ -139,7 +141,7 @@ export default class Comment
         sequelize,
         modelName: "Comment",
         tableName: "Comments",
-        timestamps: true,
+        timestamps: false,
         paranoid: true,
         indexes: [
           {
@@ -183,6 +185,13 @@ export default class Comment
         ],
       }
     );
+
+    // On update: only overwrite updatedAt *if* the user didn’t explicitly set it.
+    Comment.beforeUpdate((inst) => {
+      if (!inst.changed("updatedAt")) {
+        inst.setDataValue("updatedAt", new Date());
+      }
+    });
   }
 
   /**

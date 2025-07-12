@@ -24,6 +24,8 @@ export default async (req: ExReq, res: ExRes) => {
       referencedCommentId,
       attachments,
       metadata,
+      createdAt,
+      updatedAt,
     } = req.body;
     const loggedInUserId = req.userId;
     const projectId = req.project.id!;
@@ -71,25 +73,65 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    const newCommentData: Partial<IComment> & {
+      projectId: string;
+      entityId: string;
+    } = {
+      projectId,
+      foreignId,
+      referenceId: foreignId,
+      userId,
+      entityId,
+      parentId,
+      content,
+      gif,
+      mentions,
+      referencedCommentId,
+      attachments,
+      metadata,
+    };
+
+    // Only master/service may even attempt to set createdAt or updatedAt
+    if (req.isMaster || req.isService) {
+      // parse timestamps if provided
+      const tsCreated = createdAt ? new Date(createdAt) : undefined;
+      const tsUpdated = updatedAt ? new Date(updatedAt) : undefined;
+
+      // updatedAt but no createdAt ⇒ error
+      if (tsUpdated && !tsCreated) {
+        res.status(400).json({
+          error: "Cannot set updatedAt without also setting createdAt.",
+          code: "comment/invalid-timestamp",
+        });
+        return;
+      }
+
+      if (tsCreated) {
+        // set createdAt
+        newCommentData.createdAt = tsCreated;
+
+        if (tsUpdated) {
+          // 4) both passed ⇒ updatedAt must be ≥ createdAt
+          if (tsUpdated < tsCreated) {
+            res.status(400).json({
+              error: "updatedAt must be the same or after createdAt.",
+              code: "comment/invalid-timestamp",
+            });
+            return;
+          }
+          newCommentData.updatedAt = tsUpdated;
+        } else {
+          // 3) createdAt passed but no updatedAt ⇒ mirror createdAt
+          newCommentData.updatedAt = tsCreated;
+        }
+      }
+    }
+
     const { comment } = await sequelize.transaction(async (transaction) => {
       // Create the comment using Sequelize's create method
-      const comment = (await Comment.create(
-        {
-          projectId,
-          foreignId,
-          referenceId: foreignId,
-          userId,
-          entityId,
-          parentId,
-          content,
-          gif,
-          mentions,
-          referencedCommentId,
-          attachments,
-          metadata,
-        },
-        { transaction }
-      )) as IComment;
+      const comment = (await Comment.create(newCommentData, {
+        transaction,
+      })) as IComment;
 
       await updateUserReputation(
         userId!,
