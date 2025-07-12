@@ -36,7 +36,7 @@ export default async (req: ExReq, res: ExRes) => {
       });
       return;
     }
-    if (!content && !gif) {
+    if (!content && !gif && (attachments ?? []).length === 0) {
       res.status(400).json({
         error: "Missing required comment content",
         code: "comment/missing-content",

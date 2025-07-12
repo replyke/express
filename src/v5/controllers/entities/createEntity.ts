@@ -1,6 +1,5 @@
 import { Request as ExReq, Response as ExRes } from "express";
 import { ForeignKeyConstraintError } from "sequelize";
-import ShortUniqueId from "short-uuid";
 import { Entity } from "../../../models";
 import { entityParams } from "../../../constants/sequelize-query-params";
 import IEntity from "../../../interfaces/IEntity";
@@ -29,6 +28,7 @@ export default async (req: ExReq, res: ExRes) => {
       location,
       metadata,
       excludeUserId,
+      createdAt,
     } = req.body;
 
     const loggedInUserId = req.userId;
