@@ -7,7 +7,7 @@ import IList from "../../../interfaces/IList";
 // Main handler function
 export default async (req: ExReq, res: ExRes) => {
   try {
-    const { update } = req.body;
+    const { update, userId: userIdProp } = req.body;
     const { listId } = req.params;
 
     const loggedInUserId = req.userId;
@@ -21,6 +21,7 @@ export default async (req: ExReq, res: ExRes) => {
       });
       return;
     }
+
     const { name } = update;
 
     // Validate the presence of required fields.
@@ -32,13 +33,29 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && userIdProp) {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
+
     // Update the name in a single operation and retrieve the updated row
     const [rowsUpdated, [updatedList]] = await List.update(
       { name },
       {
         where: {
           projectId,
-          userId: loggedInUserId,
+          userId,
           id: listId,
           parentId: { [Op.ne]: null }, // Ensure parentId is not null
         },

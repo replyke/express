@@ -6,7 +6,7 @@ import populateList from "../../../helpers/populateList";
 export default async (req: ExReq, res: ExRes) => {
   try {
     // Extract parentId from query parameters.
-    const { listId: parentListId } = req.params;
+    const { listId: parentListId, userId: userIdProp } = req.params;
 
     const loggedInUserId = req.userId;
     const projectId = req.project.id;
@@ -20,11 +20,27 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && userIdProp) {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
+
     // Search for sub-lists using Sequelize's findAll method.
     const subLists = (await List.findAll({
       where: {
         projectId,
-        userId: loggedInUserId,
+        userId,
         parentId: parentListId,
       },
     })) as IList[];

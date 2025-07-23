@@ -4,7 +4,7 @@ import { List } from "../../../models";
 
 export default async (req: ExReq, res: ExRes) => {
   try {
-    const { listId } = req.params;
+    const { listId, userId: userIdProp } = req.params;
 
     const loggedInUserId = req.userId;
     const projectId = req.project.id;
@@ -16,11 +16,27 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && userIdProp) {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
+
     const list = await List.findOne({
       where: {
         id: listId,
         projectId,
-        userId: loggedInUserId,
+        userId,
         parentId: { [Op.ne]: null },
       },
     });

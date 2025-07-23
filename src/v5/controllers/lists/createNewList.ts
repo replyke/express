@@ -5,7 +5,7 @@ import IList from "../../../interfaces/IList";
 
 export default async (req: ExReq, res: ExRes) => {
   try {
-    const { listName } = req.body;
+    const { listName, userId: userIdProp } = req.body;
     const { listId } = req.params;
     const loggedInUserId = req.userId;
     const projectId = req.project.id;
@@ -28,11 +28,27 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && userIdProp) {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
+
     // Create a new list (folder)
     const newList = await List.create(
       {
         projectId,
-        userId: loggedInUserId,
+        userId,
         parentId: listId,
         name: listName,
       },

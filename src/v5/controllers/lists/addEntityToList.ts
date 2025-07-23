@@ -5,7 +5,7 @@ import populateList from "../../../helpers/populateList";
 
 export default async (req: ExReq, res: ExRes) => {
   try {
-    const { entityId } = req.body;
+    const { entityId, userId: userIdProp } = req.body;
     const { listId } = req.params;
 
     const loggedInUserId = req.userId;
@@ -27,10 +27,26 @@ export default async (req: ExReq, res: ExRes) => {
       return;
     }
 
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && userIdProp) {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
+
     const list = (await List.findOne({
       where: {
         projectId,
-        userId: loggedInUserId,
+        userId,
         id: listId,
       },
     })) as IList | null;

@@ -5,15 +5,33 @@ import populateList from "../../../helpers/populateList";
 
 export default async (req: ExReq, res: ExRes) => {
   try {
+    const { userId: userIdProp } = req.query;
+
     // Extract projectId and userId from query parameters.
     const loggedInUserId = req.userId;
     const projectId = req.project.id;
+
+    let userId: string | null = null;
+    if ((req.isMaster || req.isService) && typeof userIdProp === "string") {
+      userId = userIdProp;
+    } else if (loggedInUserId) {
+      userId = loggedInUserId;
+    }
+
+    // Validate the presence of userId.
+    if (typeof userId !== "string") {
+      res.status(400).json({
+        error: "Missing userId",
+        code: "list/missing-data",
+      });
+      return;
+    }
 
     // Search for the list using Sequelize's findOne method.
     let list: IList | null = (await List.findOne({
       where: {
         projectId, // Ensure the types match
-        userId: loggedInUserId,
+        userId,
         parentId: null,
         isRoot: true,
       },
