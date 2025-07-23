@@ -139,7 +139,7 @@ export default class User
           defaultValue: {},
           validate: {
             notTooLarge(value: object | null) {
-              const MAX_SIZE = 10240;
+              const MAX_SIZE = 1024 * 512; // 512 KB
               if (value !== null) {
                 const size = Buffer.byteLength(JSON.stringify(value), "utf8");
                 if (size > MAX_SIZE) {
@@ -157,7 +157,7 @@ export default class User
           defaultValue: {},
           validate: {
             notTooLarge(value: object | null) {
-              const MAX_SIZE = 10240;
+              const MAX_SIZE = 1024 * 512; // 512 KB
               if (value !== null) {
                 const size = Buffer.byteLength(JSON.stringify(value), "utf8");
                 if (size > MAX_SIZE) {

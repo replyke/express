@@ -202,7 +202,7 @@ export default class Entity
           defaultValue: {},
           validate: {
             notTooLarge(value: object | null) {
-              const MAX_SIZE = 10240;
+              const MAX_SIZE = 1024 * 1024; // 1 MB
               if (value !== null) {
                 const size = Buffer.byteLength(JSON.stringify(value), "utf8");
                 if (size > MAX_SIZE) {
