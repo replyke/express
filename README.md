@@ -231,4 +231,4 @@ Good first issues are tagged with **good first issue**. -->
 
 ## License
 
-Licensed under [AGPL, Version 3.0](https://www.gnu.org/licenses/agpl-3.0.html).
+Licensed under [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
