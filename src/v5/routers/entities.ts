@@ -37,7 +37,7 @@ router.get("/by-short-id", rateLimiter("5m", 1000), fetchEntityByShortId);
 // Route to fetch a single entity by its ID
 router.get("/:entityId", rateLimiter("5m", 1000), fetchEntity);
 
-router.get("/:entityId/top-comment", fetchTopComment);
+router.get("/:entityId/top-comment", rateLimiter("5m", 1000), fetchTopComment);
 
 // Route to upvote an entity.
 router.patch(

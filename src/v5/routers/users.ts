@@ -17,7 +17,7 @@ import { rateLimiter } from "../../utils/rateLimit";
 const router: Router = Router();
 
 // Route to get user mentions suggestions
-router.get("/suggestions", rateLimiter("5m", 50), fetchUserSuggestions);
+router.get("/suggestions", rateLimiter("5m", 100), fetchUserSuggestions);
 
 // Route to check if a username is available
 router.get(
@@ -54,7 +54,7 @@ router.patch("/:userId", rateLimiter("5m", 50), requireUserAuth, updateUser);
 // Route to follow a user
 router.post(
   "/:userId/follow",
-  rateLimiter("5m", 100),
+  rateLimiter("5m", 75),
   requireUserAuth,
   createFollow
 );
@@ -62,7 +62,7 @@ router.post(
 // Route to get a follow relationship
 router.get(
   "/:userId/follow",
-  rateLimiter("5m", 100),
+  rateLimiter("5m", 75),
   requireUserAuth,
   fetchFollow
 );
@@ -70,7 +70,7 @@ router.get(
 // Route to unfollow a user
 router.delete(
   "/:userId/follow",
-  rateLimiter("5m", 100),
+  rateLimiter("5m", 75),
   requireUserAuth,
   deleteFollow
 );
