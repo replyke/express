@@ -12,6 +12,15 @@ import reduceAuthenticatedUserDetails from "../../../helpers/reduceAuthenticated
 import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
+  let responseSent = false;
+  
+  const sendResponse = (status: number, data: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      res.status(status).json(data);
+    }
+  };
+
   const {
     email,
     password,
@@ -29,7 +38,7 @@ export default async (req: ExReq, res: ExRes) => {
 
   // Validate required fields
   if (!email || !password) {
-    res.status(400).json({
+    sendResponse(400, {
       error: "Missing required fields",
       code: "auth/missing-fields",
     });
@@ -62,7 +71,16 @@ export default async (req: ExReq, res: ExRes) => {
     const { projectId: _, ...restOfUserData } = newUserData;
 
     // Call the webhook to validate the user creation
-    await validateUserCreated(req, res, { projectId, data: restOfUserData });
+    const validationResult = await validateUserCreated(req, res, { projectId, data: restOfUserData });
+
+    if (!validationResult.valid) {
+      console.warn("User creation validation failed:", validationResult.error);
+      sendResponse(400, {
+        error: validationResult.error || "User validation failed",
+        code: "auth/validation-failed",
+      });
+      return;
+    }
 
     // Wrap the whole flow in a transaction to ensure consistency
     const result = await sequelize.transaction(async (t) => {
@@ -121,28 +139,30 @@ export default async (req: ExReq, res: ExRes) => {
     // Access user and refreshToken from the transaction result if needed
     const { user, refreshTokenJWT, accessTokenJWT } = result;
 
-    res.cookie("replyke-refresh-jwt", refreshTokenJWT, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
+    if (!responseSent) {
+      res.cookie("replyke-refresh-jwt", refreshTokenJWT, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/",
+      });
 
-    const reducedAuthenticatedUser = reduceAuthenticatedUserDetails({
-      ...user,
-      suspensions: [],
-    });
+      const reducedAuthenticatedUser = reduceAuthenticatedUserDetails({
+        ...user,
+        suspensions: [],
+      });
 
-    res.status(201).json({
-      success: true,
-      accessToken: accessTokenJWT,
-      refreshToken: refreshTokenJWT,
-      user: reducedAuthenticatedUser,
-    });
+      sendResponse(201, {
+        success: true,
+        accessToken: accessTokenJWT,
+        refreshToken: refreshTokenJWT,
+        user: reducedAuthenticatedUser,
+      });
+    }
   } catch (err: any) {
     console.error("Error signing user up: ", err);
-    res.status(500).json({
+    sendResponse(500, {
       error: "Internal server error",
       code: "auth/server-error",
       details: err.message,

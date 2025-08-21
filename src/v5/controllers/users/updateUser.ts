@@ -9,6 +9,15 @@ import { Model, ModelStatic } from "sequelize";
 import { ISuspension } from "../../../interfaces/ISuspension";
 
 export default async (req: ExReq, res: ExRes) => {
+  let responseSent = false;
+  
+  const sendResponse = (status: number, data: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      res.status(status).json(data);
+    }
+  };
+
   try {
     const { update } = req.body;
     const { userId } = req.params;
@@ -16,7 +25,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     // Validate the presence of required data.
     if (!userId || !update || Object.keys(update).length === 0) {
-      res.status(400).json({
+      sendResponse(400, {
         error: "Missing required data",
         code: "user/missing-data",
       });
@@ -33,7 +42,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     // If no user is found, return a 404 (Not Found) status.
     if (!user) {
-      res.status(404).json({
+      sendResponse(404, {
         error: "User not found",
         code: "user/not-found",
       });
@@ -73,8 +82,17 @@ export default async (req: ExReq, res: ExRes) => {
       };
     }
 
-    // Call the webhook to validate the user creation
-    await validateUserUpdated(req, res, update);
+    // Call the webhook to validate the user update
+    const validationResult = await validateUserUpdated(req, res, update);
+
+    if (!validationResult.valid) {
+      console.warn("User update validation failed:", validationResult.error);
+      sendResponse(400, {
+        error: validationResult.error || "User validation failed",
+        code: "user/validation-failed",
+      });
+      return;
+    }
 
     // Update the user with the provided update content.
     await user.update(update);
@@ -99,16 +117,14 @@ export default async (req: ExReq, res: ExRes) => {
     });
 
     // Return the updated user.
-    res
-      .status(200)
-      .json(
-        reduceAuthenticatedUserDetails(
-          user as unknown as IUser & { suspensions: ISuspension[] }
-        )
-      );
+    sendResponse(200, 
+      reduceAuthenticatedUserDetails(
+        user as unknown as IUser & { suspensions: ISuspension[] }
+      )
+    );
   } catch (err: any) {
     console.error("Error updating a user: ", err);
-    res.status(500).json({
+    sendResponse(500, {
       error: "Internal server error",
       code: "user/server-error",
       details: err.message,

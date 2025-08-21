@@ -10,16 +10,16 @@ export default async (
     data: Partial<IEntity>;
     initiatorId: string | undefined;
   }
-) => {
+): Promise<{ valid: boolean; error?: string }> => {
   const entityUpdatedWebhook = req.project.webhooks.entityUpdated;
-  if (!entityUpdatedWebhook) return;
+  if (!entityUpdatedWebhook) return { valid: true };
 
   const sharedSecret = req.project.keys.secret?.key;
 
   if (!sharedSecret) {
-    return res
-      .status(400)
-      .json({ error: "Webhook URL or secret not configured" });
+    const error = "Webhook URL or secret not configured";
+    console.warn("Entity update validation failed:", error);
+    return { valid: false, error };
   }
 
   try {
@@ -29,12 +29,20 @@ export default async (
       sharedSecret
     );
 
-    if (!webhookResponse || webhookResponse.valid !== true) {
-      return res.status(400).json({
-        error: webhookResponse?.message || "Invalid entity data",
-      });
+    if (!webhookResponse.success) {
+      console.warn("Entity update webhook validation failed:", webhookResponse.error);
+      return { valid: false, error: webhookResponse.error };
     }
+
+    if (!webhookResponse.data || webhookResponse.data.valid !== true) {
+      const error = webhookResponse.data?.message || "Invalid entity data";
+      console.warn("Entity update validation rejected:", error);
+      return { valid: false, error };
+    }
+
+    return { valid: true };
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Entity update validation error:", err);
+    return { valid: false, error: err.message };
   }
 };

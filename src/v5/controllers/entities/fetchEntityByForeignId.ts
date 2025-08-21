@@ -8,13 +8,22 @@ import validateEntityCreated from "../../../helpers/webhooks/validateEntityCreat
 import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
+  let responseSent = false;
+  
+  const sendResponse = (status: number, data: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      res.status(status).json(data);
+    }
+  };
+
   try {
     const { foreignId, createIfNotFound } = req.query;
     const projectId = req.project.id!;
 
     // Validate the presence of projectId and either foreignId or entityId.
     if (foreignId && typeof foreignId !== "string") {
-      res.status(400).json({
+      sendResponse(400, {
         error: "Missing valid foreignId in request query.",
         code: "entity/invalid-query-params",
       });
@@ -29,11 +38,20 @@ export default async (req: ExReq, res: ExRes) => {
     // If no entity is found, create a new blank one.
     if (!entity && createIfNotFound === "true") {
       // Call the webhook to validate the entity creation
-      await validateEntityCreated(req, res, {
+      const validationResult = await validateEntityCreated(req, res, {
         projectId,
         data: { foreignId },
         initiatorId: undefined,
       });
+
+      if (!validationResult.valid) {
+        console.warn("Entity creation validation failed:", validationResult.error);
+        sendResponse(400, {
+          error: validationResult.error || "Entity validation failed",
+          code: "entity/validation-failed",
+        });
+        return;
+      }
 
       const newEntity = (await Entity.create({
         projectId,
@@ -50,7 +68,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     if (!entity) {
-      res.status(404).json({
+      sendResponse(404, {
         error: "Entity not found",
         code: "entity/not-found",
       });
@@ -62,7 +80,7 @@ export default async (req: ExReq, res: ExRes) => {
       entity.toJSON();
 
     // Return the entity with a 200 (OK) status.
-    res.status(200).json(entityData);
+    sendResponse(200, entityData);
 
     // Schedule the score update asynchronously.
     setImmediate(async () => {
@@ -84,7 +102,7 @@ export default async (req: ExReq, res: ExRes) => {
     });
   } catch (err: any) {
     console.error("Error fetching an entity:", err);
-    res.status(500).json({
+    sendResponse(500, {
       error: "Internal server error.",
       code: "entity/server-error",
       details: err.message,

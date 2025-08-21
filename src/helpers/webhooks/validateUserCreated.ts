@@ -9,16 +9,16 @@ export default async (
     projectId: string;
     data: Partial<IUser>;
   }
-) => {
+): Promise<{ valid: boolean; error?: string }> => {
   const userCreatedWebhook = req.project.webhooks.userCreated;
-  if (!userCreatedWebhook) return;
+  if (!userCreatedWebhook) return { valid: true };
 
   const sharedSecret = req.project.keys.secret?.key;
 
   if (!sharedSecret) {
-    return res
-      .status(400)
-      .json({ error: "Webhook URL or secret not configured" });
+    const error = "Webhook URL or secret not configured";
+    console.warn("User validation failed:", error);
+    return { valid: false, error };
   }
 
   try {
@@ -28,12 +28,20 @@ export default async (
       sharedSecret
     );
 
-    if (!webhookResponse || webhookResponse.valid !== true) {
-      return res.status(400).json({
-        error: webhookResponse?.message || "Invalid user data",
-      });
+    if (!webhookResponse.success) {
+      console.warn("User webhook validation failed:", webhookResponse.error);
+      return { valid: false, error: webhookResponse.error };
     }
+
+    if (!webhookResponse.data || webhookResponse.data.valid !== true) {
+      const error = webhookResponse.data?.message || "Invalid user data";
+      console.warn("User validation rejected:", error);
+      return { valid: false, error };
+    }
+
+    return { valid: true };
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("User validation error:", err);
+    return { valid: false, error: err.message };
   }
 };

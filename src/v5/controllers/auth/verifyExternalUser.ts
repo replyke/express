@@ -12,13 +12,20 @@ import { Model, ModelStatic } from "sequelize";
 import { ISuspension } from "../../../interfaces/ISuspension";
 
 export default async (req: ExReq, res: ExRes) => {
+  let responseSent = false;
+  
+  const sendResponse = (status: number, data: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      res.status(status).json(data);
+    }
+  };
+
   const { userJwt } = req.body;
   const projectId = req.project.id!;
 
   if (!userJwt) {
-    res
-      .status(400)
-      .json({ error: "Missing userJwt", code: "auth/missing-jwt" });
+    sendResponse(400, { error: "Missing userJwt", code: "auth/missing-jwt" });
     return;
   }
 
@@ -26,9 +33,7 @@ export default async (req: ExReq, res: ExRes) => {
     const jwtKeys = req.project.keys.jwt;
 
     if (!jwtKeys || !jwtKeys.publicKey) {
-      res
-        .status(403)
-        .json({ error: "Missing JWT keys", code: "auth/missing-keys" });
+      sendResponse(403, { error: "Missing JWT keys", code: "auth/missing-keys" });
       return;
     }
 
@@ -47,9 +52,7 @@ export default async (req: ExReq, res: ExRes) => {
       decoded = jwt.verify(userJwt, publicKeyPem, { algorithms: ["RS256"] });
     } catch (err) {
       if (!previousKeyPem) {
-        res
-          .status(403)
-          .json({ error: "Invalid token", code: "auth/invalid-token" });
+        sendResponse(403, { error: "Invalid token", code: "auth/invalid-token" });
         return;
       }
       try {
@@ -58,9 +61,7 @@ export default async (req: ExReq, res: ExRes) => {
           algorithms: ["RS256"],
         });
       } catch {
-        res
-          .status(403)
-          .json({ error: "Invalid token", code: "auth/invalid-token" });
+        sendResponse(403, { error: "Invalid token", code: "auth/invalid-token" });
         return;
       }
     }
@@ -72,9 +73,7 @@ export default async (req: ExReq, res: ExRes) => {
     } = decoded as jwt.JwtPayload;
 
     if (projectId !== providedProjectId) {
-      res
-        .status(403)
-        .json({ error: "Project ID mismatch", code: "auth/project-mismatch" });
+      sendResponse(403, { error: "Project ID mismatch", code: "auth/project-mismatch" });
       return;
     }
 
@@ -220,10 +219,15 @@ export default async (req: ExReq, res: ExRes) => {
             const { projectId: _, ...restOfUserData } = newUserData;
 
             // Call the webhook to validate the user creation
-            await validateUserCreated(req, res, {
+            const validationResult = await validateUserCreated(req, res, {
               projectId,
               data: restOfUserData,
             });
+
+            if (!validationResult.valid) {
+              console.warn("User creation validation failed:", validationResult.error);
+              throw new Error(validationResult.error || "User validation failed");
+            }
 
             // Create a new user if it doesn't exist
             user = (await User.create(newUserData, { transaction })) as IUser;
@@ -278,7 +282,7 @@ export default async (req: ExReq, res: ExRes) => {
     })) as (IUser & { suspensions: ISuspension[] }) | null;
 
     if (!userWithSuspensions) {
-      res.status(500).json({
+      sendResponse(500, {
         error: "Unexpected error fetching user after login",
         code: "auth/missing-user",
       });
@@ -298,26 +302,28 @@ export default async (req: ExReq, res: ExRes) => {
       { expiresIn: "30m" } // Access token expiry
     );
 
-    res.cookie("replyke-refresh-jwt", refreshTokenJWT, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
+    if (!responseSent) {
+      res.cookie("replyke-refresh-jwt", refreshTokenJWT, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        path: "/",
+      });
 
-    const reducedAuthenticatedUser =
-      reduceAuthenticatedUserDetails(userWithSuspensions);
+      const reducedAuthenticatedUser =
+        reduceAuthenticatedUserDetails(userWithSuspensions);
 
-    res.status(200).json({
-      success: true,
-      accessToken: accessTokenJWT,
-      refreshToken: refreshTokenJWT,
-      user: reducedAuthenticatedUser,
-    });
+      sendResponse(200, {
+        success: true,
+        accessToken: accessTokenJWT,
+        refreshToken: refreshTokenJWT,
+        user: reducedAuthenticatedUser,
+      });
+    }
   } catch (err: any) {
     console.error("Verification failed:", err);
-    res.status(500).json({
+    sendResponse(500, {
       error: "Internal server error",
       code: "auth/server-error",
       details: err.message,

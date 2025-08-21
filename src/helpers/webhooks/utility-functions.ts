@@ -51,39 +51,50 @@ export async function sendWebhookRequest(
 
 /**
  * Send a webhook request to the given URL with the specified data and headers.
+ * Returns null on error instead of throwing to prevent server crashes.
  */
 export async function sendWebhookRequestWithHandle(
   webhookUrl: string,
   payload: any,
   secret: string
-): Promise<any> {
+): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
     const response = await sendWebhookRequest(webhookUrl, payload, secret);
 
     // Validate the response signature if it exists
     const responseSignature = response.headers["x-response-signature"];
     if (!responseSignature) {
-      throw new Error("Missing response signature");
+      console.warn("Webhook response missing signature:", webhookUrl);
+      return { success: false, error: "Missing response signature" };
     }
 
     if (!validateHmacSignature(response.data, responseSignature, secret)) {
-      throw new Error("Invalid response signature");
+      console.warn("Webhook response signature invalid:", webhookUrl);
+      return { success: false, error: "Invalid response signature" };
     }
 
-    return response.data;
+    return { success: true, data: response.data };
   } catch (err) {
-    handleWebhookError(err, "Webhook request failed");
+    const errorResult = handleWebhookError(err, "Webhook request failed");
+    return { success: false, error: errorResult.message };
   }
 }
 
 /**
  * Handle errors during webhook requests.
+ * Returns error object instead of throwing to prevent server crashes.
  */
-export function handleWebhookError(err: any, defaultMessage: string) {
+export function handleWebhookError(err: any, defaultMessage: string): { message: string } {
   if (err instanceof AxiosError) {
-    console.error(defaultMessage, err.response?.data || err.message);
-    throw new Error(err.response?.data?.error || defaultMessage);
+    const errorMessage = err.response?.data?.error || defaultMessage;
+    console.error(defaultMessage, {
+      url: err.config?.url,
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message
+    });
+    return { message: errorMessage };
   }
   console.error(defaultMessage, err);
-  throw new Error(defaultMessage);
+  return { message: defaultMessage };
 }

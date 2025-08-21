@@ -7,6 +7,15 @@ import ILocation from "../../../interfaces/ILocation";
 import validateEntityUpdated from "../../../helpers/webhooks/validateEntityUpdated";
 
 export default async (req: ExReq, res: ExRes) => {
+  let responseSent = false;
+  
+  const sendResponse = (status: number, data: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      res.status(status).json(data);
+    }
+  };
+
   const {
     title,
     content,
@@ -22,7 +31,7 @@ export default async (req: ExReq, res: ExRes) => {
   const projectId = req.project.id!;
 
   if (!entityId) {
-    res.status(400).json({
+    sendResponse(400, {
       error: "Invalid entity ID.",
       code: "entity/invalid-id",
     });
@@ -36,7 +45,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     // If the entity doesn't exist, return a 404 error
     if (!entity) {
-      res.status(404).json({
+      sendResponse(404, {
         error: "Entity not found.",
         code: "entity/not-found",
       });
@@ -49,15 +58,15 @@ export default async (req: ExReq, res: ExRes) => {
       !req.isMaster &&
       !req.isService
     ) {
-      res.status(403).json({
+      sendResponse(403, {
         error: "Not authorized to update this entity.",
         code: "entity/not-authorized",
       });
       return;
     }
 
-    // Call the webhook to validate the entity creation
-    await validateEntityUpdated(req, res, {
+    // Call the webhook to validate the entity update
+    const validationResult = await validateEntityUpdated(req, res, {
       projectId,
       data: {
         foreignId: entity.foreignId,
@@ -72,6 +81,15 @@ export default async (req: ExReq, res: ExRes) => {
       },
       initiatorId: loggedInUserId,
     });
+
+    if (!validationResult.valid) {
+      console.warn("Entity update validation failed:", validationResult.error);
+      sendResponse(400, {
+        error: validationResult.error || "Entity validation failed",
+        code: "entity/validation-failed",
+      });
+      return;
+    }
 
     // Only update fields that are not undefined
     if (title !== undefined) entity.title = title;
@@ -96,10 +114,10 @@ export default async (req: ExReq, res: ExRes) => {
     })) as IEntity;
 
     // Respond with the updated entity
-    res.status(200).json(populatedEntity.toJSON());
+    sendResponse(200, populatedEntity.toJSON());
   } catch (err: any) {
     console.error("Failed to update the entity:", err);
-    res.status(500).json({
+    sendResponse(500, {
       error: "Failed to update the entity.",
       code: "entity/server-error",
       details: err.message,
