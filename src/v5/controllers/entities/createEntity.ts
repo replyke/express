@@ -8,12 +8,12 @@ import { User } from "../../../models";
 import IUser from "../../../interfaces/IUser";
 import updateUserReputation from "../../../helpers/updateUserReputation";
 import reputationScores from "../../../constants/reputation-scores";
-import validateEntityCreated from "../../../helpers/webhooks/validateEntityCreated";
+
 import ILocation from "../../../interfaces/ILocation";
 import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
-  const { sequelize, handlers } = getCoreConfig();
+  const { sequelize, usageTrackingHandlers, webhookHandlers } = getCoreConfig();
 
   try {
     const {
@@ -110,7 +110,7 @@ export default async (req: ExReq, res: ExRes) => {
     const { projectId: _, ...restOfEntityData } = newEntityData;
 
     // Call the webhook to validate the entity creation
-    await validateEntityCreated(req, res, {
+    await webhookHandlers.entityCreated(req, {
       projectId,
       data: restOfEntityData,
       initiatorId: loggedInUserId,
@@ -139,7 +139,7 @@ export default async (req: ExReq, res: ExRes) => {
       return { entity };
     });
 
-    await handlers.createEntity({ projectId });
+    await usageTrackingHandlers.createEntity({ projectId });
 
     // Fetch the entity again but populated now
     const populatedEntity = (await Entity.findOne({
@@ -159,7 +159,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     entity.mentions.forEach((mention) => {
       if (mention.id !== entity.userId) {
-        createNotification(req, res, {
+        createNotification(req, {
           userId: entity.userId!,
           projectId,
           type: "entity-mention",

@@ -50,7 +50,7 @@ export default async (req: ExReq, res: ExRes) => {
     res.sendStatus(201);
 
     const followerJSON = follower.toJSON();
-    createNotification(req, res, {
+    createNotification(req, {
       userId: followedId, // The recipient user ID, assumed here
       projectId,
       type: "new-follow",

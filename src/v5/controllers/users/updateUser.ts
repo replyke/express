@@ -1,16 +1,16 @@
 import { Request as ExReq, Response as ExRes } from "express";
+import { Model, ModelStatic } from "sequelize";
 
 import { User } from "../../../models";
 import sanitizeUsername from "../../../helpers/sanitizeUsername";
-import validateUserUpdated from "../../../helpers/webhooks/validateUserUpdated";
 import IUser, { IUserAttributes } from "../../../interfaces/IUser";
 import reduceAuthenticatedUserDetails from "../../../helpers/reduceAuthenticatedUserDetails";
-import { Model, ModelStatic } from "sequelize";
 import { ISuspension } from "../../../interfaces/ISuspension";
+import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
   let responseSent = false;
-  
+
   const sendResponse = (status: number, data: any) => {
     if (!responseSent) {
       responseSent = true;
@@ -22,6 +22,7 @@ export default async (req: ExReq, res: ExRes) => {
     const { update } = req.body;
     const { userId } = req.params;
     const projectId = req.project.id;
+    const { webhookHandlers } = getCoreConfig();
 
     // Validate the presence of required data.
     if (!userId || !update || Object.keys(update).length === 0) {
@@ -83,7 +84,10 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     // Call the webhook to validate the user update
-    const validationResult = await validateUserUpdated(req, res, update);
+    const validationResult = await webhookHandlers.userUpdated(req, {
+      projectId,
+      data: update,
+    });
 
     if (!validationResult.valid) {
       console.warn("User update validation failed:", validationResult.error);
@@ -117,7 +121,8 @@ export default async (req: ExReq, res: ExRes) => {
     });
 
     // Return the updated user.
-    sendResponse(200, 
+    sendResponse(
+      200,
       reduceAuthenticatedUserDetails(
         user as unknown as IUser & { suspensions: ISuspension[] }
       )

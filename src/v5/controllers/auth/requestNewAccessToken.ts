@@ -14,7 +14,7 @@ export default async (req: ExReq, res: ExRes) => {
   const { refreshToken } = req.body;
   const projectId = req.project.id;
   const cookies = req.cookies;
-  const { refreshTokenSecret } = getCoreConfig();
+  const { refreshTokenSecret, usageTrackingHandlers } = getCoreConfig();
 
   const refreshTokenJWT = cookies?.["replyke-refresh-jwt"] || refreshToken;
   if (!refreshTokenJWT) {
@@ -107,8 +107,7 @@ export default async (req: ExReq, res: ExRes) => {
       user: reducedAuthenticatedUser,
     });
 
-    const { handlers } = getCoreConfig();
-    await handlers.requestNewAccessToken({ projectId, userId });
+    await usageTrackingHandlers.requestNewAccessToken({ projectId, userId });
   } catch (err: any) {
     console.error("Error verifying refresh token:", err);
     res.status(403).json({

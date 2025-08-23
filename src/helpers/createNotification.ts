@@ -1,13 +1,12 @@
-import { Request as ExReq, Response as ExRes } from "express";
+import { Request as ExReq } from "express";
 
 import validateNotificationParams from "./validateNotificationParams";
 import { NotificationParams } from "../interfaces/IAppNotification";
 import { AppNotification } from "../models";
-import broadcastNotificationCreated from "./webhooks/broadcastNotificationCreated";
+import { getCoreConfig } from "../config";
 
 export default async function createNotification(
   req: ExReq,
-  res: ExRes,
   params: NotificationParams
 ): Promise<void> {
   setImmediate(async () => {
@@ -21,8 +20,11 @@ export default async function createNotification(
 
     try {
       await AppNotification.create(params);
-
-      await broadcastNotificationCreated(req, res, params);
+      const { webhookHandlers } = getCoreConfig();
+      await webhookHandlers.notificationCreated(req, {
+        projectId: params.projectId,
+        data: params,
+      });
     } catch (error) {
       console.error("Error creating notification:", error);
     }

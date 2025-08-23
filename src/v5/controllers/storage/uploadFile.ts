@@ -15,7 +15,7 @@ export default async (req: ExReq, res: ExRes) => {
     const pathParts = JSON.parse(req.body.pathParts);
     const projectId = req.project.id!;
     const file = req.file;
-    const { handlers, createFile } = getCoreConfig();
+    const { usageTrackingHandlers, helpers } = getCoreConfig();
 
     // Validate that pathParts is an array of strings
     if (
@@ -63,14 +63,14 @@ export default async (req: ExReq, res: ExRes) => {
       // publicPath,
       path: relativePath,
       id: fileId,
-    } = await createFile(
+    } = await helpers.createFile(
       projectId,
       completePathParts,
       file.buffer,
       file.mimetype
     );
 
-    handlers.uploadFile({ projectId, fileSize: file.size });
+    usageTrackingHandlers.uploadFile({ projectId, fileSize: file.size });
 
     const proxyPath = "https://api.replyke.com/internal/files/";
 

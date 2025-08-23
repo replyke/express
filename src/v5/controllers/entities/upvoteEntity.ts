@@ -85,7 +85,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     if (entity.userId) {
-      createNotification(req, res, {
+      createNotification(req, {
         userId: entity.userId, // The recipient user ID, assumed here
         projectId,
         type: "entity-upvote",

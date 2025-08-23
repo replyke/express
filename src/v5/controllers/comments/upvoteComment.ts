@@ -94,7 +94,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     const entityJSON = entity.toJSON();
 
-    createNotification(req, res, {
+    createNotification(req, {
       userId: comment.userId!, // The recipient user ID, assumed here
       projectId,
       type: "comment-upvote",

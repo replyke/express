@@ -4,7 +4,6 @@ import { User } from "../../../models";
 import { Token } from "../../../models";
 import IUser from "../../../interfaces/IUser";
 import IToken from "../../../interfaces/IToken";
-import validateUserCreated from "../../../helpers/webhooks/validateUserCreated";
 import deepEqual from "../../../utils/deepEqual";
 import reduceAuthenticatedUserDetails from "../../../helpers/reduceAuthenticatedUserDetails";
 import { getCoreConfig } from "../../../config";
@@ -13,7 +12,7 @@ import { ISuspension } from "../../../interfaces/ISuspension";
 
 export default async (req: ExReq, res: ExRes) => {
   let responseSent = false;
-  
+
   const sendResponse = (status: number, data: any) => {
     if (!responseSent) {
       responseSent = true;
@@ -33,7 +32,10 @@ export default async (req: ExReq, res: ExRes) => {
     const jwtKeys = req.project.keys.jwt;
 
     if (!jwtKeys || !jwtKeys.publicKey) {
-      sendResponse(403, { error: "Missing JWT keys", code: "auth/missing-keys" });
+      sendResponse(403, {
+        error: "Missing JWT keys",
+        code: "auth/missing-keys",
+      });
       return;
     }
 
@@ -52,7 +54,10 @@ export default async (req: ExReq, res: ExRes) => {
       decoded = jwt.verify(userJwt, publicKeyPem, { algorithms: ["RS256"] });
     } catch (err) {
       if (!previousKeyPem) {
-        sendResponse(403, { error: "Invalid token", code: "auth/invalid-token" });
+        sendResponse(403, {
+          error: "Invalid token",
+          code: "auth/invalid-token",
+        });
         return;
       }
       try {
@@ -61,7 +66,10 @@ export default async (req: ExReq, res: ExRes) => {
           algorithms: ["RS256"],
         });
       } catch {
-        sendResponse(403, { error: "Invalid token", code: "auth/invalid-token" });
+        sendResponse(403, {
+          error: "Invalid token",
+          code: "auth/invalid-token",
+        });
         return;
       }
     }
@@ -73,7 +81,10 @@ export default async (req: ExReq, res: ExRes) => {
     } = decoded as jwt.JwtPayload;
 
     if (projectId !== providedProjectId) {
-      sendResponse(403, { error: "Project ID mismatch", code: "auth/project-mismatch" });
+      sendResponse(403, {
+        error: "Project ID mismatch",
+        code: "auth/project-mismatch",
+      });
       return;
     }
 
@@ -89,7 +100,7 @@ export default async (req: ExReq, res: ExRes) => {
       secureMetadata,
     } = userData;
 
-    const { sequelize, refreshTokenSecret } = getCoreConfig();
+    const { sequelize, refreshTokenSecret, webhookHandlers } = getCoreConfig();
 
     const { user, refreshTokenJWT } = await sequelize.transaction(
       async (transaction) => {
@@ -219,14 +230,19 @@ export default async (req: ExReq, res: ExRes) => {
             const { projectId: _, ...restOfUserData } = newUserData;
 
             // Call the webhook to validate the user creation
-            const validationResult = await validateUserCreated(req, res, {
+            const validationResult = await webhookHandlers.userCreated(req, {
               projectId,
               data: restOfUserData,
             });
 
             if (!validationResult.valid) {
-              console.warn("User creation validation failed:", validationResult.error);
-              throw new Error(validationResult.error || "User validation failed");
+              console.warn(
+                "User creation validation failed:",
+                validationResult.error
+              );
+              throw new Error(
+                validationResult.error || "User validation failed"
+              );
             }
 
             // Create a new user if it doesn't exist

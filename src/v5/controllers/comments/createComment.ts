@@ -148,8 +148,8 @@ export default async (req: ExReq, res: ExRes) => {
       ...commentParams,
     })) as IComment;
 
-    const { handlers } = getCoreConfig();
-    await handlers.createComment({ projectId });
+    const { usageTrackingHandlers } = getCoreConfig();
+    await usageTrackingHandlers.createComment({ projectId });
 
     // Return the newly created comment or reply
     res.status(201).json(populatedComment.toJSON());
@@ -169,7 +169,7 @@ export default async (req: ExReq, res: ExRes) => {
       })) as IComment;
 
       if (parentComment && parentComment.userId) {
-        createNotification(req, res, {
+        createNotification(req, {
           userId: parentComment.userId!, // The recipient user ID, assumed here
           projectId,
           type: "comment-reply",
@@ -194,7 +194,7 @@ export default async (req: ExReq, res: ExRes) => {
         });
       }
     } else if (entity.userId) {
-      createNotification(req, res, {
+      createNotification(req, {
         userId: entity.userId, // The recipient user ID, assumed here
         projectId,
         type: "entity-comment",
@@ -220,7 +220,7 @@ export default async (req: ExReq, res: ExRes) => {
       // We check if the mention ID dons't equal the userId of the author of the entity as the author of the entity wil get a notification fo this comment regardless of th mention, and we don't want to send two
 
       if (mention.id && mention.id !== entity.userId) {
-        createNotification(req, res, {
+        createNotification(req, {
           userId: mention.id, // The recipient user ID, assumed here
           projectId,
           type: "comment-mention",

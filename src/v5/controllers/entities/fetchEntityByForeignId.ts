@@ -4,12 +4,11 @@ import scoreEntity from "../../../helpers/scoreEntity";
 import { Entity } from "../../../models";
 import IEntity, { IEntityAttributes } from "../../../interfaces/IEntity";
 import { entityParams } from "../../../constants/sequelize-query-params";
-import validateEntityCreated from "../../../helpers/webhooks/validateEntityCreated";
 import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
   let responseSent = false;
-  
+
   const sendResponse = (status: number, data: any) => {
     if (!responseSent) {
       responseSent = true;
@@ -20,6 +19,7 @@ export default async (req: ExReq, res: ExRes) => {
   try {
     const { foreignId, createIfNotFound } = req.query;
     const projectId = req.project.id!;
+    const { usageTrackingHandlers, webhookHandlers } = getCoreConfig();
 
     // Validate the presence of projectId and either foreignId or entityId.
     if (foreignId && typeof foreignId !== "string") {
@@ -38,14 +38,17 @@ export default async (req: ExReq, res: ExRes) => {
     // If no entity is found, create a new blank one.
     if (!entity && createIfNotFound === "true") {
       // Call the webhook to validate the entity creation
-      const validationResult = await validateEntityCreated(req, res, {
+      const validationResult = await webhookHandlers.entityCreated(req, {
         projectId,
         data: { foreignId },
         initiatorId: undefined,
       });
 
       if (!validationResult.valid) {
-        console.warn("Entity creation validation failed:", validationResult.error);
+        console.warn(
+          "Entity creation validation failed:",
+          validationResult.error
+        );
         sendResponse(400, {
           error: validationResult.error || "Entity validation failed",
           code: "entity/validation-failed",
@@ -63,8 +66,7 @@ export default async (req: ExReq, res: ExRes) => {
         ...entityParams,
       })) as IEntity | null;
 
-      const { handlers } = getCoreConfig();
-      await handlers.createEntity({ projectId });
+      await usageTrackingHandlers.createEntity({ projectId });
     }
 
     if (!entity) {

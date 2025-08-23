@@ -1,32 +1,82 @@
 import { Sequelize } from "sequelize";
+import { Request as ExReq } from "express";
 
-export interface CoreConfig {
-  accessTokenSecret: string;
-  refreshTokenSecret: string;
-  sequelize: Sequelize;
-  handlers: {
-    createEntity: (props: { projectId: string }) => Promise<void>;
-    createComment: (props: { projectId: string }) => Promise<void>;
-    uploadFile: (props: {
+import { IEntity, IUser, NotificationParams } from "./interfaces";
+
+export interface UsageTrackingHandlersConfig {
+  createEntity: (props: { projectId: string }) => Promise<void>;
+  createComment: (props: { projectId: string }) => Promise<void>;
+  uploadFile: (props: { projectId: string; fileSize: number }) => Promise<void>;
+  requestNewAccessToken: (props: {
+    projectId: string;
+    userId: string;
+  }) => Promise<void>;
+}
+
+interface WebhookResponse {
+    valid: boolean;
+    error?: string;
+}
+export interface WebhookHandlersConfig {
+  userCreated: (
+    req: ExReq,
+    payload: {
       projectId: string;
-      fileSize: number;
-    }) => Promise<void>;
-    requestNewAccessToken: (props: {
+      data: Partial<IUser>;
+    }
+  ) => Promise<WebhookResponse>;
+  userUpdated: (
+    req: ExReq,
+    payload: {
       projectId: string;
-      userId: string;
-    }) => Promise<void>;
-  };
-  createFile(
+      data: Partial<IUser>;
+    }
+  ) => Promise<WebhookResponse>;
+  entityCreated: (
+    req: ExReq,
+    payload: {
+      projectId: string;
+      data: Partial<IEntity>;
+      initiatorId: string | undefined;
+    }
+  ) => Promise<WebhookResponse>;
+  entityUpdated: (
+    req: ExReq,
+    payload: {
+      projectId: string;
+      data: Partial<IEntity>;
+      initiatorId: string | undefined;
+    }
+  ) => Promise<WebhookResponse>;
+  notificationCreated: (
+    req: ExReq,
+    payload: {
+      projectId: string;
+      data: NotificationParams;
+    }
+  ) => Promise<void>;
+}
+
+export interface helpersConfig {
+  createFile: (
     projectId: string,
     pathParts: string[],
     file: Buffer | Blob,
     contentType?: string
-  ): Promise<{
+  ) => Promise<{
     id: string;
     path: string;
     fullPath: string;
     publicPath: string;
   }>;
+}
+export interface CoreConfig {
+  accessTokenSecret: string;
+  refreshTokenSecret: string;
+  sequelize: Sequelize;
+  usageTrackingHandlers: UsageTrackingHandlersConfig;
+  webhookHandlers: WebhookHandlersConfig;
+  helpers: helpersConfig;
 }
 
 let config: CoreConfig;

@@ -4,11 +4,11 @@ import { Entity } from "../../../models";
 import IEntity from "../../../interfaces/IEntity";
 import { entityParams } from "../../../constants/sequelize-query-params";
 import ILocation from "../../../interfaces/ILocation";
-import validateEntityUpdated from "../../../helpers/webhooks/validateEntityUpdated";
+import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
   let responseSent = false;
-  
+
   const sendResponse = (status: number, data: any) => {
     if (!responseSent) {
       responseSent = true;
@@ -29,6 +29,7 @@ export default async (req: ExReq, res: ExRes) => {
   const { entityId } = req.params;
   const loggedInUserId = req.userId;
   const projectId = req.project.id!;
+  const { webhookHandlers } = getCoreConfig();
 
   if (!entityId) {
     sendResponse(400, {
@@ -66,7 +67,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     // Call the webhook to validate the entity update
-    const validationResult = await validateEntityUpdated(req, res, {
+    const validationResult = await webhookHandlers.entityUpdated(req, {
       projectId,
       data: {
         foreignId: entity.foreignId,

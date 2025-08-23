@@ -6,14 +6,13 @@ import { User } from "../../../models";
 import IUser from "../../../interfaces/IUser";
 import { Token } from "../../../models";
 import IToken from "../../../interfaces/IToken";
-import validateUserCreated from "../../../helpers/webhooks/validateUserCreated";
 import ILocation from "../../../interfaces/ILocation";
 import reduceAuthenticatedUserDetails from "../../../helpers/reduceAuthenticatedUserDetails";
 import { getCoreConfig } from "../../../config";
 
 export default async (req: ExReq, res: ExRes) => {
   let responseSent = false;
-  
+
   const sendResponse = (status: number, data: any) => {
     if (!responseSent) {
       responseSent = true;
@@ -34,7 +33,7 @@ export default async (req: ExReq, res: ExRes) => {
     secureMetadata,
   } = req.body;
   const projectId = req.project.id!;
-  const { sequelize, refreshTokenSecret } = getCoreConfig();
+  const { sequelize, refreshTokenSecret, webhookHandlers } = getCoreConfig();
 
   // Validate required fields
   if (!email || !password) {
@@ -71,7 +70,10 @@ export default async (req: ExReq, res: ExRes) => {
     const { projectId: _, ...restOfUserData } = newUserData;
 
     // Call the webhook to validate the user creation
-    const validationResult = await validateUserCreated(req, res, { projectId, data: restOfUserData });
+    const validationResult = await webhookHandlers.userCreated(req, {
+      projectId,
+      data: restOfUserData,
+    });
 
     if (!validationResult.valid) {
       console.warn("User creation validation failed:", validationResult.error);
