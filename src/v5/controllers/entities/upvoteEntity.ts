@@ -92,6 +92,7 @@ export default async (req: ExReq, res: ExRes) => {
         action: "open-entity",
         metadata: {
           entityId: entity.id!,
+          entityForeignId: entity.foreignId,
           entityShortId: entity.shortId!,
           entityTitle: entity.title,
           entityContent: (entity.content || "").slice(0, 200),

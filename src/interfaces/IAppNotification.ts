@@ -36,11 +36,13 @@ interface EntityCommentNotificationParams extends BaseNotificationParams {
   action: "open-comment";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
 
     commentId: string;
+    commentForeignId: string | null | undefined;
     commentContent: string | null | undefined;
 
     initiatorId: string;
@@ -55,11 +57,13 @@ interface CommentReplyNotificationParams extends BaseNotificationParams {
   action: "open-comment";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
 
     commentId: string;
+    commentForeignId: string | null | undefined;
     commentContent: string | null | undefined;
 
     replyId: string;
@@ -77,6 +81,7 @@ export interface EntityMentionNotification extends BaseNotificationParams {
   action: "open-entity";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
@@ -93,11 +98,13 @@ export interface CommentMentionNotification extends BaseNotificationParams {
   action: "open-comment";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
 
     commentId: string;
+    commentForeignId: string | null | undefined;
     commentContent: string | null | undefined;
 
     initiatorId: string;
@@ -112,6 +119,7 @@ export interface EntityUpvoteNotification extends BaseNotificationParams {
   action: "open-entity";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
@@ -128,11 +136,13 @@ export interface CommentUpvoteNotification extends BaseNotificationParams {
   action: "open-comment";
   metadata: {
     entityId: string;
+    entityForeignId: string | null | undefined;
     entityShortId: string;
     entityTitle: string | null | undefined;
     entityContent: string | null | undefined;
 
     commentId: string;
+    commentForeignId: string | null | undefined;
     commentContent: string | null | undefined;
 
     initiatorId: string;

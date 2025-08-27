@@ -176,11 +176,13 @@ export default async (req: ExReq, res: ExRes) => {
           action: "open-comment",
           metadata: {
             entityId: entity.id!,
+            entityForeignId: entity.foreignId,
             entityShortId: entity.shortId!,
             entityTitle: entity.title,
             entityContent: (entity.content || "").slice(0, 200),
 
             commentId: comment.id!, // This should stay and not the parent ID because we want this to be highlighted
+            commentForeignId: comment.foreignId,
             commentContent: comment.content,
 
             replyId: comment.parentId,
@@ -201,11 +203,13 @@ export default async (req: ExReq, res: ExRes) => {
         action: "open-comment",
         metadata: {
           entityId: entity.id!,
+          entityForeignId: entity.foreignId,
           entityShortId: entity.shortId!,
           entityTitle: entity.title,
           entityContent: (entity.content || "").slice(0, 200),
 
           commentId: comment.id!,
+          commentForeignId: comment.foreignId,
           commentContent: comment.content,
 
           initiatorId: user.id!,
@@ -227,11 +231,13 @@ export default async (req: ExReq, res: ExRes) => {
           action: "open-comment",
           metadata: {
             entityId: entity.id!,
+            entityForeignId: entity.foreignId,
             entityShortId: entity.shortId!,
             entityTitle: entity.title,
             entityContent: (entity.content || "").slice(0, 200),
 
             commentId: comment.id!,
+            commentForeignId: comment.foreignId,
             commentContent: comment.content,
 
             initiatorId: loggedInUserId,

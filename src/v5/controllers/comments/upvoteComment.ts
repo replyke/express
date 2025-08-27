@@ -101,11 +101,13 @@ export default async (req: ExReq, res: ExRes) => {
       action: "open-comment",
       metadata: {
         entityId: entityJSON.id!,
+        entityForeignId: entityJSON.foreignId,
         entityShortId: entityJSON.shortId!,
         entityTitle: entityJSON.title,
         entityContent: (entityJSON.content || "").slice(0, 200),
 
         commentId,
+        commentForeignId: comment.foreignId,
         commentContent: comment.content,
 
         initiatorId: user.id!,
