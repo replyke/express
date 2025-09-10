@@ -3,6 +3,7 @@ import {
   fetchNotifications,
   countUnreadNotifications,
   markNotificationAsRead,
+  markAllNotificationsAsRead,
 } from "../controllers/app-notifications";
 import requireUserAuth from "../../middleware/requireUserAuth";
 import { rateLimiter } from "../../utils/rateLimit";
@@ -26,6 +27,14 @@ router.patch(
   rateLimiter("5m", 100),
   requireUserAuth,
   markNotificationAsRead
+);
+
+// Mark all notifications as read
+router.patch(
+  "/mark-all-as-read",
+  rateLimiter("5m", 20),
+  requireUserAuth,
+  markAllNotificationsAsRead
 );
 
 export default router;
