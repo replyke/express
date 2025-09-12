@@ -175,6 +175,8 @@ export default async (req: ExReq, res: ExRes) => {
             initiatorName: user.name,
             initiatorUsername: user.username,
             initiatorAvatar: user.avatar,
+
+            entityMetadata: entity.metadata,
           },
         });
       }

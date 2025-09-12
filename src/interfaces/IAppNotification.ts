@@ -49,6 +49,9 @@ interface EntityCommentNotificationParams extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
+    commentMetadata: Record<string, any> | null | undefined;
   };
 }
 
@@ -73,6 +76,9 @@ interface CommentReplyNotificationParams extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
+    commentMetadata: Record<string, any> | null | undefined;
   };
 }
 
@@ -90,6 +96,8 @@ export interface EntityMentionNotification extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
   };
 }
 
@@ -111,6 +119,9 @@ export interface CommentMentionNotification extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
+    commentMetadata: Record<string, any> | null | undefined;
   };
 }
 
@@ -128,6 +139,8 @@ export interface EntityUpvoteNotification extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
   };
 }
 
@@ -149,6 +162,9 @@ export interface CommentUpvoteNotification extends BaseNotificationParams {
     initiatorName: string | null | undefined;
     initiatorUsername: string | null | undefined;
     initiatorAvatar: string | null | undefined;
+
+    entityMetadata: Record<string, any> | null | undefined;
+    commentMetadata: Record<string, any> | null | undefined;
   };
 }
 

@@ -192,6 +192,9 @@ export default async (req: ExReq, res: ExRes) => {
             initiatorName: user.name,
             initiatorUsername: user.username,
             initiatorAvatar: user.avatar,
+
+            entityMetadata: entity.metadata,
+            commentMetadata: comment.metadata,
           },
         });
       }
@@ -216,6 +219,9 @@ export default async (req: ExReq, res: ExRes) => {
           initiatorName: user.name,
           initiatorUsername: user.username,
           initiatorAvatar: user.avatar,
+
+          entityMetadata: entity.metadata,
+          commentMetadata: comment.metadata,
         },
       });
     }
@@ -244,6 +250,9 @@ export default async (req: ExReq, res: ExRes) => {
             initiatorName: user.name,
             initiatorUsername: user.username,
             initiatorAvatar: user.avatar,
+
+            entityMetadata: entity.metadata,
+            commentMetadata: comment.metadata,
           },
         });
       }
