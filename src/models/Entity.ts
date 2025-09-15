@@ -189,7 +189,7 @@ export default class Entity
         score: {
           type: DataTypes.FLOAT,
           allowNull: false,
-          defaultValue: 2,
+          defaultValue: 1.4,
         },
         scoreUpdatedAt: {
           type: DataTypes.DATE,

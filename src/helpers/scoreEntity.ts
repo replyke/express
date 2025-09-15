@@ -1,6 +1,21 @@
 import { differenceInMinutes } from "date-fns";
 import { IEntityAttributes } from "../interfaces/IEntity";
 
+const SCORING_CONFIG = {
+  BASE_SCORE: 1,
+  HALF_LIFE_HOURS: 120,
+  FRESHNESS_BOOST_HOURS: 6,
+  FRESHNESS_MULTIPLIER: 1.4,
+  WEIGHTS: {
+    UPVOTE: 1,
+    DOWNVOTE: -0.7,
+    REPLY: 0.6,
+    SHARE: 2.5
+  },
+  ENGAGEMENT_RATE_CAP: 0.5,
+  QUALITY_BONUS_MULTIPLIER: 2
+};
+
 const validateEntityDataForScoring = (
   entity: IEntityAttributes & { repliesCount: number }
 ) => {
@@ -73,41 +88,42 @@ export default function scoreEntity(
   const downvotesCount = entity.downvotes.length;
   const repliesCount = entity.repliesCount;
   const sharesCount = entity.sharesCount;
-  const views = Math.max(entity.views, 1); // Ensure views is at least 1
+  const views = Math.max(entity.views, 1);
   const createdAt = entity.createdAt;
 
-  // Weight factors for different elements of the score
-  const UPVOTE_WEIGHT = 1;
-  const DOWNVOTE_WEIGHT = -0.5;
-  const REPLY_WEIGHT = 0.5;
-  const SHARE_WEIGHT = 2;
-
-  // Base interaction score
-  const interactionScore =
-    UPVOTE_WEIGHT * upvotesCount +
-    DOWNVOTE_WEIGHT * downvotesCount +
-    REPLY_WEIGHT * repliesCount +
-    SHARE_WEIGHT * sharesCount;
-
-  // Base score for all posts, decays over time
-  const BASE_SCORE = 2; // Starting score for new posts
-  const HALF_LIFE = 48; // Half-life in hours for the base score decay
-
   // Calculate time since publication in hours
-  const time_since_publication =
+  const hours_since_creation =
     (new Date().getTime() - new Date(createdAt!).getTime()) / (3600 * 1000);
 
   // Calculate decay factor for the base score
-  const base_decay = Math.exp(-time_since_publication / HALF_LIFE);
+  const time_decay = Math.exp(-hours_since_creation / SCORING_CONFIG.HALF_LIFE_HOURS);
 
-  // Adjust the base score with decay
-  const baseAdjustedScore = BASE_SCORE * base_decay;
+  // Fresh content boost for new posts
+  const freshness_multiplier = hours_since_creation < SCORING_CONFIG.FRESHNESS_BOOST_HOURS
+    ? SCORING_CONFIG.FRESHNESS_MULTIPLIER
+    : 1.0;
 
-  // Adjust interaction score by views to normalize for exposure
-  const exposureAdjustedScore = interactionScore / Math.log2(views + 1);
+  // Base score with decay and freshness boost
+  const baseAdjustedScore = SCORING_CONFIG.BASE_SCORE * time_decay * freshness_multiplier;
 
-  // Combine base score and interaction score
-  const final_score = Math.max(0, baseAdjustedScore + exposureAdjustedScore);
+  // Interaction score using new weights
+  const interactionScore =
+    SCORING_CONFIG.WEIGHTS.UPVOTE * upvotesCount +
+    SCORING_CONFIG.WEIGHTS.DOWNVOTE * downvotesCount +
+    SCORING_CONFIG.WEIGHTS.REPLY * repliesCount +
+    SCORING_CONFIG.WEIGHTS.SHARE * sharesCount;
+
+  // Gentler exposure adjustment using sqrt(log2())
+  const exposure_factor = Math.sqrt(Math.log2(views + 1));
+  const exposureAdjustedScore = interactionScore / exposure_factor;
+
+  // Quality bonus for high engagement rate
+  const total_interactions = upvotesCount + repliesCount + sharesCount;
+  const engagement_rate = Math.min(total_interactions / views, SCORING_CONFIG.ENGAGEMENT_RATE_CAP);
+  const quality_bonus = engagement_rate * SCORING_CONFIG.QUALITY_BONUS_MULTIPLIER;
+
+  // Combine all score components
+  const final_score = Math.max(0, baseAdjustedScore + exposureAdjustedScore + quality_bonus);
 
   return {
     updated: true,
