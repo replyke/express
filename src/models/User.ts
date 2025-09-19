@@ -187,7 +187,7 @@ export default class User
         modelName: "User",
         tableName: "Users",
         timestamps: true,
-        paranoid: true,
+        // paranoid: true, // Enable if you want soft deletes
         indexes: [
           {
             unique: true,
