@@ -118,41 +118,44 @@ export default async (req: ExReq, res: ExRes) => {
             shouldUpdate = true;
           }
 
-          if (user.name !== name) {
+          if (name && user.name !== name) {
             user.name = name;
             shouldUpdate = true;
           }
 
-          if (user.username !== username) {
+          if (username && user.username !== username) {
             user.username = username;
             shouldUpdate = true;
           }
-          if (user.avatar !== avatar) {
+          if (avatar && user.avatar !== avatar) {
             user.avatar = avatar;
             shouldUpdate = true;
           }
 
-          if (user.bio !== bio) {
+          if (bio && user.bio !== bio) {
             user.bio = bio;
             shouldUpdate = true;
           }
 
-          if (user.location !== location) {
+          if (location && user.location !== location) {
             user.location = location;
             shouldUpdate = true;
           }
 
-          if (user.birthdate !== birthdate) {
+          if (birthdate && user.birthdate !== birthdate) {
             user.birthdate = birthdate;
             shouldUpdate = true;
           }
 
-          if (!deepEqual(user.metadata, metadata ?? {})) {
+          if (metadata && !deepEqual(user.metadata, metadata ?? {})) {
             user.metadata = metadata || {};
             shouldUpdate = true;
           }
 
-          if (!deepEqual(user.secureMetadata, secureMetadata ?? {})) {
+          if (
+            secureMetadata &&
+            !deepEqual(user.secureMetadata, secureMetadata ?? {})
+          ) {
             user.metadata = metadata || {};
             shouldUpdate = true;
           }
