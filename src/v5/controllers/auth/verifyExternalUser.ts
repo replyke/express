@@ -256,12 +256,8 @@ export default async (req: ExReq, res: ExRes) => {
             // Create a new user if it doesn't exist
             user = (await User.create(newUserData, { transaction })) as IUser;
 
-            // Call the webhook to validate the user creation
-            await webhookHandlers.userCreated.after(req, {
-              projectId,
-              stage: "after",
-              data: user,
-            });
+            // Add webhook context to the user instance
+            (user as any)._webhookContext = { req };
           }
         }
 

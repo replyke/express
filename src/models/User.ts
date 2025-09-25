@@ -1,6 +1,7 @@
 import { Model, DataTypes, Sequelize, CreationOptional } from "sequelize";
 import { IUserAttributes, IUserCreationAttributes } from "../interfaces/IUser";
 import { ISuspension } from "../interfaces/ISuspension";
+import { getCoreConfig } from "../config";
 import Token from "./Token";
 import Entity from "./Entity";
 import Comment from "./Comment";
@@ -210,6 +211,27 @@ export default class User
             using: "gist",
           },
         ],
+        hooks: {
+          afterCreate: async (user: User, options) => {
+            // Call webhook handler asynchronously to not block user creation
+            setTimeout(async () => {
+              try {
+                const { webhookHandlers } = getCoreConfig();
+                const context = (user as any)._webhookContext;
+
+                if (context && context.req) {
+                  await webhookHandlers.userCreated.after(context.req, {
+                    projectId: user.projectId,
+                    stage: "after",
+                    data: user,
+                  });
+                }
+              } catch (error) {
+                console.error("Error calling userCreated.after webhook:", error);
+              }
+            }, 0);
+          },
+        },
       }
     );
   }

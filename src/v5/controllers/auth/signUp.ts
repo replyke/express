@@ -97,6 +97,9 @@ export default async (req: ExReq, res: ExRes) => {
         { transaction: t } // Ensure this is part of the transaction
       )) as IUser;
 
+      // Add webhook context to the user instance
+      (user as any)._webhookContext = { req };
+
       // Create an empty Token entry (UUID will be generated here)
       const refreshTokenEntry = (await Token.create(
         {
@@ -141,12 +144,6 @@ export default async (req: ExReq, res: ExRes) => {
 
     // Access user and refreshToken from the transaction result if needed
     const { user, refreshTokenJWT, accessTokenJWT } = result;
-
-    await webhookHandlers.userCreated.after(req, {
-      projectId,
-      stage: "after",
-      data: user,
-    });
 
     if (!responseSent) {
       res.cookie("replyke-refresh-jwt", refreshTokenJWT, {
