@@ -70,8 +70,9 @@ export default async (req: ExReq, res: ExRes) => {
     const { projectId: _, ...restOfUserData } = newUserData;
 
     // Call the webhook to validate the user creation
-    const validationResult = await webhookHandlers.userCreated(req, {
+    const validationResult = await webhookHandlers.userCreated.before(req, {
       projectId,
+      stage: "before",
       data: restOfUserData,
     });
 
@@ -140,6 +141,12 @@ export default async (req: ExReq, res: ExRes) => {
 
     // Access user and refreshToken from the transaction result if needed
     const { user, refreshTokenJWT, accessTokenJWT } = result;
+
+    await webhookHandlers.userCreated.after(req, {
+      projectId,
+      stage: "after",
+      data: user,
+    });
 
     if (!responseSent) {
       res.cookie("replyke-refresh-jwt", refreshTokenJWT, {

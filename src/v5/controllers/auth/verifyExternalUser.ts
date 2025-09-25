@@ -233,23 +233,35 @@ export default async (req: ExReq, res: ExRes) => {
             const { projectId: _, ...restOfUserData } = newUserData;
 
             // Call the webhook to validate the user creation
-            const validationResult = await webhookHandlers.userCreated(req, {
-              projectId,
-              data: restOfUserData,
-            });
+            const validationResult = await webhookHandlers.userCreated.before(
+              req,
+              {
+                projectId,
+                data: restOfUserData,
+                stage: "before",
+              }
+            );
 
             if (!validationResult.valid) {
               console.warn(
                 "User creation validation failed:",
                 validationResult.error
               );
-              throw new Error(
-                validationResult.error || "User validation failed"
-              );
+              sendResponse(400, {
+                error: validationResult.error || "User validation failed",
+                code: "auth/validation-failed",
+              });
             }
 
             // Create a new user if it doesn't exist
             user = (await User.create(newUserData, { transaction })) as IUser;
+
+            // Call the webhook to validate the user creation
+            await webhookHandlers.userCreated.after(req, {
+              projectId,
+              stage: "after",
+              data: user,
+            });
           }
         }
 

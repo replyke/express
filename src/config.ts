@@ -14,17 +14,28 @@ export interface UsageTrackingHandlersConfig {
 }
 
 interface WebhookResponse {
-    valid: boolean;
-    error?: string;
+  valid: boolean;
+  error?: string;
 }
 export interface WebhookHandlersConfig {
-  userCreated: (
-    req: ExReq,
-    payload: {
-      projectId: string;
-      data: Partial<IUser>;
-    }
-  ) => Promise<WebhookResponse>;
+  userCreated: {
+    before: (
+      req: ExReq,
+      payload: {
+        projectId: string;
+        stage: "before";
+        data: Partial<IUser>;
+      }
+    ) => Promise<WebhookResponse>;
+    after: (
+      req: ExReq,
+      payload: {
+        projectId: string;
+        stage: "after";
+        data: Partial<IUser>;
+      }
+    ) => Promise<WebhookResponse>;
+  };
   userUpdated: (
     req: ExReq,
     payload: {
