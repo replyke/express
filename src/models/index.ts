@@ -6,6 +6,7 @@ import AppNotification from "./AppNotification";
 import Report from "./Report";
 import Token from "./Token";
 import Follow from "./Follow";
+import Connection from "./Connection";
 
 // Export models and the function to initialize the database
-export { User, Entity, Comment, Follow, List, AppNotification, Report, Token };
+export { User, Entity, Comment, Follow, List, AppNotification, Report, Token, Connection };

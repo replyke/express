@@ -3,10 +3,10 @@ import { Follow } from "../../../models";
 
 export default async (req: ExReq, res: ExRes) => {
   try {
-    const { userId } = req.params;
+    const currentUserId = req.userId;
     const projectId = req.project.id;
 
-    if (!userId || typeof userId !== "string") {
+    if (!currentUserId || typeof currentUserId !== "string") {
       res.status(400).json({
         error: "Missing or invalid userId in request parameters",
         code: "user/invalid-user-id",
@@ -16,7 +16,7 @@ export default async (req: ExReq, res: ExRes) => {
 
     // Query the Follows table for followers count
     const count = await Follow.count({
-      where: { projectId, followerId: userId },
+      where: { projectId, followerId: currentUserId },
     });
 
     res.status(200).json({ count });

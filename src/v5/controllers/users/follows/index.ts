@@ -1,5 +1,17 @@
 import createFollow from "./createFollow";
-import fetchFollow from "./fetchFollow";
-import deleteFollow from "./deleteFollow";
+import fetchFollowStatus from "./fetchFollowStatus";
+import deleteFollowByUserId from "./deleteFollowByUserId";
+import fetchFollowersByUserId from "./fetchFollowersByUserId";
+import fetchFollowersCountByUserId from "./fetchFollowersCountByUserId";
+import fetchFollowingByUserId from "./fetchFollowingByUserId";
+import fetchFollowingCountByUserId from "./fetchFollowingCountByUserId";
 
-export { createFollow, fetchFollow, deleteFollow };
+export {
+  createFollow,
+  fetchFollowStatus,
+  deleteFollowByUserId,
+  fetchFollowersByUserId,
+  fetchFollowersCountByUserId,
+  fetchFollowingByUserId,
+  fetchFollowingCountByUserId,
+};

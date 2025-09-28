@@ -10,11 +10,15 @@ export default async (req: ExReq, res: ExRes) => {
 
   try {
     // Check if the follow relationship exists
-    const followExists = await Follow.findOne({
+    const follow = await Follow.findOne({
       where: { projectId, followerId: loggedInUserId, followedId },
     });
 
-    res.status(200).json({ isFollowing: !!followExists });
+    if (follow) {
+      res.status(200).json({ followId: follow.id, isFollowing: true });
+    } else {
+      res.status(200).json({ isFollowing: false });
+    }
   } catch (err: any) {
     console.error("Error fetching follow:", err);
     res.status(500).json({

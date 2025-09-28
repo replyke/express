@@ -1,5 +1,5 @@
 import { Request as ExReq, Response as ExRes } from "express";
-import { Follow } from "../../../models";
+import { Follow } from "../../../../models";
 
 export default async (req: ExReq, res: ExRes) => {
   try {

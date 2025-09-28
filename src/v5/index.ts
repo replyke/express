@@ -3,7 +3,9 @@ import {
   appNotificationsRouter,
   authRouter,
   commentsRouter,
+  connectionsRouter,
   entitiesRouter,
+  followsRouter,
   listsRouter,
   reportsRouter,
   storageRouter,
@@ -16,7 +18,9 @@ const apiRouter: Router = Router();
 apiRouter.use("/app-notifications", appNotificationsRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/comments", commentsRouter);
+apiRouter.use("/connections", connectionsRouter);
 apiRouter.use("/entities", entitiesRouter);
+apiRouter.use("/follows", followsRouter);
 apiRouter.use("/lists", listsRouter);
 apiRouter.use("/reports", reportsRouter);
 apiRouter.use("/users", usersRouter);

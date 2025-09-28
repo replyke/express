@@ -8,6 +8,7 @@ import Comment from "./Comment";
 import List from "./List";
 import AppNotification from "./AppNotification";
 import Follow from "./Follow";
+import Connection from "./Connection";
 
 export default class User
   extends Model<IUserAttributes, IUserCreationAttributes>
@@ -273,6 +274,18 @@ export default class User
       foreignKey: "followedId",
       as: "followers", // Users following this user
       onDelete: "CASCADE", // Ensure cascade delete
+    });
+
+    User.hasMany(Connection, {
+      foreignKey: "requesterId",
+      as: "sentConnections", // Connections this user initiated
+      onDelete: "CASCADE", // If a User is deleted, all their sent connections are deleted
+    });
+
+    User.hasMany(Connection, {
+      foreignKey: "receiverId",
+      as: "receivedConnections", // Connections this user received
+      onDelete: "CASCADE", // If a User is deleted, all their received connections are deleted
     });
   }
 }

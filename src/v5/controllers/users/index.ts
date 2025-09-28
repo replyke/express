@@ -1,22 +1,47 @@
 import fetchUser from "./fetchUser";
 import fetchUserByForeignId from "./fetchUserByForeignId";
 import fetchUserSuggestions from "./fetchUserSuggestions";
-import fetchFollowersCount from "./fetchFollowersCount";
-import fetchFollowingCount from "./fetchFollowingCount";
 import checkUsernameAvailability from "./checkUsernameAvailability";
 import updateUser from "./updateUser";
 
-import { createFollow, deleteFollow, fetchFollow } from "./follows";
+import {
+  createFollow,
+  deleteFollowByUserId,
+  fetchFollowStatus,
+  fetchFollowersByUserId,
+  fetchFollowersCountByUserId,
+  fetchFollowingByUserId,
+  fetchFollowingCountByUserId,
+} from "./follows";
+
+import {
+  requestConnection,
+  fetchConnectionStatus,
+  removeConnectionByUserId,
+  fetchConnectionsByUserId,
+  fetchConnectionsCountByUserId,
+} from "./connections";
 
 export {
   fetchUser,
   fetchUserByForeignId,
   fetchUserSuggestions,
-  fetchFollowersCount,
-  fetchFollowingCount,
   checkUsernameAvailability,
   updateUser,
+
+  // Follow controllers
   createFollow,
-  deleteFollow,
-  fetchFollow,
+  deleteFollowByUserId,
+  fetchFollowStatus,
+  fetchFollowersByUserId,
+  fetchFollowersCountByUserId,
+  fetchFollowingByUserId,
+  fetchFollowingCountByUserId,
+
+  // Connection controllers
+  requestConnection,
+  fetchConnectionStatus,
+  removeConnectionByUserId,
+  fetchConnectionsByUserId,
+  fetchConnectionsCountByUserId,
 };

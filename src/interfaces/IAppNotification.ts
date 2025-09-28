@@ -179,6 +179,30 @@ export interface NewFollowNotification extends BaseNotificationParams {
   };
 }
 
+export interface ConnectionRequestNotification extends BaseNotificationParams {
+  type: "connection-request";
+  action: "open-profile";
+  metadata: {
+    connectionId: string;
+    initiatorId: string;
+    initiatorName: string | null | undefined;
+    initiatorUsername: string | null | undefined;
+    initiatorAvatar: string | null | undefined;
+  };
+}
+
+export interface ConnectionAcceptedNotification extends BaseNotificationParams {
+  type: "connection-accepted";
+  action: "open-profile";
+  metadata: {
+    connectionId: string;
+    initiatorId: string;
+    initiatorName: string | null | undefined;
+    initiatorUsername: string | null | undefined;
+    initiatorAvatar: string | null | undefined;
+  };
+}
+
 // interface FollowRequestNotificationParams extends BaseNotificationParams {
 //   type: "followRequest";
 //   metadata: {
@@ -272,4 +296,6 @@ export type NotificationParams =
   | CommentMentionNotification
   | EntityUpvoteNotification
   | CommentUpvoteNotification
-  | NewFollowNotification;
+  | NewFollowNotification
+  | ConnectionRequestNotification
+  | ConnectionAcceptedNotification;
