@@ -46,6 +46,22 @@ router.patch("/:userId", rateLimiter("5m", 50), requireUserAuth, updateUser);
 
 //////// ** Follow routes ** ////////
 
+// Route to follow a user
+router.post(
+  "/:userId/follow",
+  rateLimiter("5m", 75),
+  requireUserAuth,
+  createFollow
+);
+
+// Route to get a follow relationship status
+router.get(
+  "/:userId/follow",
+  rateLimiter("5m", 75),
+  requireUserAuth,
+  fetchFollowStatus
+);
+
 // Route to get followers of a user
 router.get(
   "/:userId/followers",
@@ -72,22 +88,6 @@ router.get(
   "/:userId/following-count",
   rateLimiter("5m", 100),
   fetchFollowingCountByUserId
-);
-
-// Route to follow a user
-router.post(
-  "/:userId/follow",
-  rateLimiter("5m", 75),
-  requireUserAuth,
-  createFollow
-);
-
-// Route to get a follow relationship
-router.get(
-  "/:userId/follow",
-  rateLimiter("5m", 75),
-  requireUserAuth,
-  fetchFollowStatus
 );
 
 // Route to unfollow a user

@@ -45,9 +45,20 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     // Create the follow relationship
-    await Follow.create({ projectId, followerId: loggedInUserId, followedId });
+    const follow = await Follow.create({
+      projectId,
+      followerId: loggedInUserId,
+      followedId,
+    });
 
-    res.sendStatus(201);
+    res
+      .status(201)
+      .json({
+        id: follow.id,
+        followerId: loggedInUserId,
+        followedId,
+        createdAt: follow.createdAt,
+      });
 
     const followerJSON = follower.toJSON();
     createNotification(req, {

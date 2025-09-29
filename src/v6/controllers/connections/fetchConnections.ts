@@ -13,64 +13,64 @@ export default async (req: ExReq, res: ExRes) => {
     const offset = (page - 1) * limit;
 
     // Query for all accepted connections where user is either requester or receiver
-    const { rows: connections, count: totalCount } = await Connection.findAndCountAll({
-      where: {
-        projectId,
-        status: "accepted",
-        [Op.or]: [
-          { requesterId: currentUserId },
-          { receiverId: currentUserId }
-        ]
-      },
-      include: [
-        {
-          model: User,
-          as: "requester",
-          attributes: {
-            exclude: [
-              "hash",
-              "salt",
-              "email",
-              "isVerified",
-              "isActive",
-              "lastActive",
-              "secureMetadata",
-            ],
-          },
+    const { rows: connections, count: totalCount } =
+      await Connection.findAndCountAll({
+        where: {
+          projectId,
+          status: "accepted",
+          [Op.or]: [
+            { requesterId: currentUserId },
+            { receiverId: currentUserId },
+          ],
         },
-        {
-          model: User,
-          as: "receiver",
-          attributes: {
-            exclude: [
-              "hash",
-              "salt",
-              "email",
-              "isVerified",
-              "isActive",
-              "lastActive",
-              "secureMetadata",
-            ],
+        include: [
+          {
+            model: User,
+            as: "requester",
+            attributes: {
+              exclude: [
+                "hash",
+                "salt",
+                "email",
+                "isVerified",
+                "isActive",
+                "lastActive",
+                "secureMetadata",
+              ],
+            },
           },
-        }
-      ],
-      order: [["createdAt", "DESC"]],
-      limit,
-      offset,
-    });
+          {
+            model: User,
+            as: "receiver",
+            attributes: {
+              exclude: [
+                "hash",
+                "salt",
+                "email",
+                "isVerified",
+                "isActive",
+                "lastActive",
+                "secureMetadata",
+              ],
+            },
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+        limit,
+        offset,
+      });
 
     // Transform the data to show the connected user (not the current user)
     const transformedConnections = connections.map((connection: any) => {
-      const connectedUser = connection.requesterId === currentUserId
-        ? connection.receiver
-        : connection.requester;
+      const connectedUser =
+        connection.requesterId === currentUserId
+          ? connection.receiver
+          : connection.requester;
 
       return {
         id: connection.id,
         connectedUser: connectedUser.toJSON(),
         connectedAt: connection.respondedAt,
-        requestedAt: connection.createdAt,
-        message: connection.message,
       };
     });
 
