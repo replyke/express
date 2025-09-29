@@ -11,7 +11,7 @@ import { rateLimiter } from "../../utils/rateLimit";
 
 const router: Router = Router();
 
-// Route to get accounts I follow
+// Route to get accounts logged in user follows
 router.get(
   "/following",
   rateLimiter("5m", 100),
@@ -19,7 +19,7 @@ router.get(
   fetchFollowing
 );
 
-// Route to get accounts that follow me
+// Route to get accounts that follow logged in user
 router.get(
   "/followers",
   rateLimiter("5m", 100),
@@ -27,7 +27,7 @@ router.get(
   fetchFollowers
 );
 
-// Route to get followers count of a user
+// Route to get followers count of logged in user
 router.get(
   "/following-count",
   rateLimiter("5m", 100),
@@ -35,6 +35,7 @@ router.get(
   fetchFollowingCount
 );
 
+// Route to get following count of logged in user
 router.get(
   "/followers-count",
   rateLimiter("5m", 100),
