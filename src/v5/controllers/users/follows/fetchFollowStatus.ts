@@ -15,7 +15,13 @@ export default async (req: ExReq, res: ExRes) => {
     });
 
     if (follow) {
-      res.status(200).json({ followId: follow.id, isFollowing: true });
+      res
+        .status(200)
+        .json({
+          followId: follow.id,
+          followedAt: follow.createdAt,
+          isFollowing: true,
+        });
     } else {
       res.status(200).json({ isFollowing: false });
     }
