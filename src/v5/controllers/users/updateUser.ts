@@ -21,6 +21,7 @@ export default async (req: ExReq, res: ExRes) => {
   try {
     const { update } = req.body;
     const { userId } = req.params;
+    const loggedInUserId = req.userId;
     const projectId = req.project.id;
     const { webhookHandlers } = getCoreConfig();
 
@@ -29,6 +30,14 @@ export default async (req: ExReq, res: ExRes) => {
       sendResponse(400, {
         error: "Missing required data",
         code: "user/missing-data",
+      });
+      return;
+    }
+
+    if (userId !== loggedInUserId && !req.isMaster && !req.isService) {
+      sendResponse(403, {
+        error: "Not authorized to update this user.",
+        code: "user/not-authorized",
       });
       return;
     }
