@@ -77,7 +77,10 @@ const configureTimeframe = (query: any, timeFrame: string | undefined) => {
 };
 
 const configureSourceId = (query: any, sourceId: string | undefined) => {
-  if (!sourceId) return;
+  if (!sourceId || ["null", "undefined"].includes(sourceId)) {
+    query.sourceId = null;
+    return;
+  }
 
   query.sourceId = sourceId;
 };
