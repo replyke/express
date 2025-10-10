@@ -79,7 +79,6 @@ export default async (req: ExReq, res: ExRes) => {
     } = {
       projectId,
       foreignId,
-      referenceId: foreignId,
       userId,
       entityId,
       parentId,

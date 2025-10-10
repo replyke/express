@@ -17,7 +17,6 @@ export default class User
   declare id: string;
   declare projectId: string;
   declare role: "admin" | "editor" | "visitor";
-  declare referenceId: string | null;
   declare foreignId: string | null;
   declare hash: string | null;
   declare salt: string | null;
@@ -57,10 +56,6 @@ export default class User
           type: DataTypes.ENUM("admin", "editor", "visitor"),
           allowNull: false,
           defaultValue: "visitor",
-        },
-        referenceId: {
-          type: DataTypes.STRING,
-          allowNull: true,
         },
         foreignId: {
           type: DataTypes.STRING,
@@ -191,10 +186,6 @@ export default class User
         timestamps: true,
         // paranoid: true, // Enable if you want soft deletes
         indexes: [
-          {
-            unique: true,
-            fields: ["projectId", "referenceId"],
-          },
           {
             unique: true,
             fields: ["projectId", "foreignId"],

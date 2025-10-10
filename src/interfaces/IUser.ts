@@ -5,7 +5,6 @@ export // Define the attributes of the User model
 interface IUserAttributes {
   id: string;
   projectId: string;
-  referenceId: string | null; // TODO: Need to sunset eventually - keeping for now as sunsetting means deleting the column
   foreignId: string | null;
   role: "admin" | "editor" | "visitor";
   hash: string | null;
@@ -34,7 +33,6 @@ export interface IUserCreationAttributes
   extends Optional<
     IUserAttributes,
     | "id"
-    | "referenceId"
     | "createdAt"
     | "updatedAt"
     | "deletedAt"

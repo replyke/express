@@ -209,14 +209,12 @@ export default async (req: ExReq, res: ExRes) => {
             }
 
             if (externalUserId) {
-              user.referenceId = externalUserId;
               user.foreignId = externalUserId;
             }
             await user.save({ transaction });
           } else {
             const newUserData: Partial<IUser> & { projectId: string } = {
               projectId,
-              referenceId: String(externalUserId),
               foreignId: String(externalUserId),
               role: "visitor",
               email,

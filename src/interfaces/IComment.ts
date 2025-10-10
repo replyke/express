@@ -6,7 +6,6 @@ import IGif from "./IGif";
 export interface ICommentAttributes {
   id: string; // Sequelize auto-generates this
   projectId: string; // Required
-  referenceId: string | null; // TODO: Need to sunset eventually - keeping for now as sunsetting means deleting the column
   foreignId: string | null;
   userId: string | null; // user id
   entityId: string; // Required

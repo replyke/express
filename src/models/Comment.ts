@@ -19,7 +19,6 @@ export default class Comment
   declare entityId: string;
   declare parentId: string;
   declare userId: string;
-  declare referenceId: string | null;
   declare foreignId: string | null;
   declare content: string | null;
   declare gif: IGif | null;
@@ -51,10 +50,6 @@ export default class Comment
         userId: {
           type: DataTypes.UUID,
           allowNull: false,
-        },
-        referenceId: {
-          type: DataTypes.STRING,
-          allowNull: true,
         },
         foreignId: {
           type: DataTypes.STRING,
