@@ -53,7 +53,6 @@ export default async (req: ExReq, res: ExRes) => {
 
     const newEntityData: Partial<IEntity> & { projectId: string } = {
       projectId,
-      referenceId: foreignId,
       foreignId: foreignId,
       sourceId,
       userId,

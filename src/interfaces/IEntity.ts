@@ -5,17 +5,14 @@ import ILocation from "./ILocation";
 // Main IEntity attributes interface refactored to camelCase
 export interface IEntityAttributes {
   id: string;
-  shortId: string | null; // TODO: backfill null values and make this required
+  shortId: string | null;
   projectId: string;
-  referenceId: string | null; // TODO: Need to sunset eventually - keeping for now as sunsetting means deleting the column
   foreignId: string | null;
   sourceId: string | null;
-  resourceId: string | null; // TODO remove after successful migration
   userId: string | null;
   title: string | null;
   content: string | null;
   mentions: IMention[]; // Required
-  media: Record<string, any>[]; // TODO: Need to sunset eventually - keeping for now as sunsetting means deleting the column
   attachments: Record<string, any>[];
   keywords: string[];
   location?: ILocation; // Optional location stored as GeoJSON
@@ -38,9 +35,7 @@ export interface IEntityCreationAttributes
     | "id"
     | "shortId"
     | "sourceId"
-    | "resourceId"
     | "mentions"
-    | "media"
     | "attachments"
     | "keywords"
     | "location"

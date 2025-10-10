@@ -250,14 +250,11 @@ const configureAttachments = (
 ) => {
   if (!attachmentsFilters) return;
 
-  // Example: hasMedia = true/false to filter if entities have media
-  // media array is empty if no media is present
+  // Example: hasAttachments = true/false to filter if entities have attachments
+  // Attachments array is empty if no attachments is present
   const { hasAttachments } = attachmentsFilters;
 
   if (hasAttachments === "true") {
-    // Check that media array is not empty
-    // array_length(media, 1) > 0
-    // A simple way:
     query.attachments = { [Op.ne]: [] };
   } else if (hasAttachments === "false") {
     query.attachments = { [Op.eq]: [] };

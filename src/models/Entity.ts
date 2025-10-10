@@ -18,13 +18,10 @@ export default class Entity
   declare projectId: string;
   declare userId: string;
   declare shortId: string;
-  declare referenceId: string | null;
   declare foreignId: string | null;
   declare sourceId: string | null;
-  declare resourceId: string | null; // TODO: remove after successful migration
   declare title: string | null;
   declare content: string | null;
-  declare media: Record<string, any>[];
   declare attachments: Record<string, any>[];
   declare mentions: IMention[];
   declare upvotes: string[];
@@ -62,19 +59,11 @@ export default class Entity
           type: DataTypes.STRING,
           allowNull: false,
         },
-        referenceId: {
-          type: DataTypes.STRING,
-          allowNull: true,
-        },
         foreignId: {
           type: DataTypes.STRING,
           allowNull: true,
         },
         sourceId: {
-          type: DataTypes.STRING,
-          allowNull: true,
-        },
-        resourceId: {
           type: DataTypes.STRING,
           allowNull: true,
         },
@@ -94,32 +83,6 @@ export default class Entity
           set(value: string | null) {
             const newValue = value && value.trim() !== "" ? value : null;
             this.setDataValue("content", newValue);
-          },
-        },
-        media: {
-          type: DataTypes.ARRAY(DataTypes.JSONB),
-          allowNull: false,
-          defaultValue: [],
-          set(value: any[]) {
-            const sanitized = Array.isArray(value)
-              ? value.filter(
-                  (item) =>
-                    item && typeof item === "object" && !Array.isArray(item)
-                )
-              : [];
-            this.setDataValue("media", sanitized);
-          },
-          validate: {
-            isArrayOfObjects(value: any[]) {
-              if (!Array.isArray(value)) {
-                throw new Error("Value must be an array.");
-              }
-              for (const item of value) {
-                if (!item || typeof item !== "object" || Array.isArray(item)) {
-                  throw new Error("Each item must be a non-null object.");
-                }
-              }
-            },
           },
         },
         attachments: {
@@ -236,7 +199,6 @@ export default class Entity
         timestamps: false,
         paranoid: true,
         indexes: [
-          { unique: true, fields: ["projectId", "referenceId"] },
           {
             name: "idx_entities_by_foreignId",
             fields: ["projectId", "foreignId"],
