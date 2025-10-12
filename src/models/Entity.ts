@@ -17,6 +17,7 @@ export default class Entity
   declare id: string;
   declare projectId: string;
   declare userId: string;
+  declare spaceId: string | null;
   declare shortId: string;
   declare foreignId: string | null;
   declare sourceId: string | null;
@@ -52,6 +53,10 @@ export default class Entity
           allowNull: false,
         },
         userId: {
+          type: DataTypes.UUID,
+          allowNull: true,
+        },
+        spaceId: {
           type: DataTypes.UUID,
           allowNull: true,
         },
@@ -239,6 +244,17 @@ export default class Entity
           {
             name: "idx_entities_by_shortid",
             fields: [{ name: "projectId" }, { name: "shortId" }],
+            where: {
+              deletedAt: null,
+            },
+          },
+          {
+            name: "idx_entities_by_space",
+            fields: [
+              { name: "projectId" },
+              { name: "spaceId" },
+              { name: "createdAt", order: "DESC" },
+            ],
             where: {
               deletedAt: null,
             },

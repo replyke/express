@@ -10,6 +10,7 @@ export interface IEntityAttributes {
   foreignId: string | null;
   sourceId: string | null;
   userId: string | null;
+  spaceId: string | null;
   title: string | null;
   content: string | null;
   mentions: IMention[]; // Required
@@ -35,6 +36,7 @@ export interface IEntityCreationAttributes
     | "id"
     | "shortId"
     | "sourceId"
+    | "spaceId"
     | "mentions"
     | "attachments"
     | "keywords"

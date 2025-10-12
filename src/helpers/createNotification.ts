@@ -16,7 +16,12 @@ export default async function createNotification(
     }
 
     // In production this should be active.
-    if (params.userId === params.metadata.initiatorId) return;
+    // Skip notification if user is the initiator (only check if initiatorId exists)
+    if (
+      "initiatorId" in params.metadata &&
+      params.userId === params.metadata.initiatorId
+    )
+      return;
 
     try {
       await AppNotification.create(params);

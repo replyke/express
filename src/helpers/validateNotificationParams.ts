@@ -39,6 +39,26 @@ export default function validateNotificationParams(
         !!params.metadata.initiatorId
       );
 
+    case "new-follow":
+      return !!params.metadata.initiatorId;
+
+    case "connection-request":
+      return (
+        !!params.metadata.connectionId && !!params.metadata.initiatorId
+      );
+
+    case "connection-accepted":
+      return (
+        !!params.metadata.connectionId && !!params.metadata.initiatorId
+      );
+
+    case "space-membership-approved":
+      return (
+        !!params.metadata.spaceId &&
+        !!params.metadata.spaceName &&
+        !!params.metadata.spaceShortId
+      );
+
     default:
       return false;
   }
