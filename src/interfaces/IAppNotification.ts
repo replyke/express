@@ -203,6 +203,18 @@ export interface ConnectionAcceptedNotification extends BaseNotificationParams {
   };
 }
 
+export interface SpaceMembershipApprovedNotification extends BaseNotificationParams {
+  type: "space-membership-approved";
+  action: "open-space";
+  metadata: {
+    spaceId: string;
+    spaceName: string;
+    spaceShortId: string;
+    spaceSlug: string | null | undefined;
+    spaceAvatar: string | null | undefined;
+  };
+}
+
 // interface FollowRequestNotificationParams extends BaseNotificationParams {
 //   type: "followRequest";
 //   metadata: {
@@ -298,4 +310,5 @@ export type NotificationParams =
   | CommentUpvoteNotification
   | NewFollowNotification
   | ConnectionRequestNotification
-  | ConnectionAcceptedNotification;
+  | ConnectionAcceptedNotification
+  | SpaceMembershipApprovedNotification;
