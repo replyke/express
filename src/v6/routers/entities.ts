@@ -17,7 +17,7 @@ import {
 import requireUserAuth from "../../middleware/requireUserAuth";
 import optionalUserAuth from "../../middleware/optionalUserAuth";
 
-import { rateLimiter } from "../../utils/rateLimit";
+import { rateLimiter } from "../../utils/rate-limit";
 import fetchTopComment from "../controllers/entities/fetchTopComment";
 
 const router: Router = Router();

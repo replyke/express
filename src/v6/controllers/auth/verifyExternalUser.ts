@@ -4,7 +4,7 @@ import { User } from "../../../models";
 import { Token } from "../../../models";
 import IUser from "../../../interfaces/IUser";
 import IToken from "../../../interfaces/IToken";
-import deepEqual from "../../../utils/deepEqual";
+import deepEqual from "../../../utils/deep-equal";
 import reduceAuthenticatedUserDetails from "../../../helpers/reduceAuthenticatedUserDetails";
 import { getCoreConfig } from "../../../config";
 import { Model, ModelStatic } from "sequelize";

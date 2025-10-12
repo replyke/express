@@ -7,7 +7,7 @@ import {
   requestNewAccessToken,
   verifyExternalUser,
 } from "../controllers/auth";
-import { rateLimiter } from "../../utils/rateLimit";
+import { rateLimiter } from "../../utils/rate-limit";
 import requireUserAuth from "../../middleware/requireUserAuth";
 
 const router: Router = Router();

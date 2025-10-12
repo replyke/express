@@ -6,7 +6,7 @@ import {
   markAllNotificationsAsRead,
 } from "../controllers/app-notifications";
 import requireUserAuth from "../../middleware/requireUserAuth";
-import { rateLimiter } from "../../utils/rateLimit";
+import { rateLimiter } from "../../utils/rate-limit";
 
 const router: Router = Router();
 
