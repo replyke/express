@@ -46,7 +46,7 @@ router.get(
 );
 
 // Route to accept a specific connection request
-router.put(
+router.patch(
   "/:connectionId/accept",
   rateLimiter("5m", 50),
   requireUserAuth,
@@ -54,7 +54,7 @@ router.put(
 );
 
 // Route to decline a specific connection request
-router.put(
+router.patch(
   "/:connectionId/decline",
   rateLimiter("5m", 50),
   requireUserAuth,
