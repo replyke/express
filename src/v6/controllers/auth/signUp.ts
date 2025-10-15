@@ -51,9 +51,9 @@ export default async (req: ExReq, res: ExRes) => {
     const newUserData: Partial<IUser> & { projectId: string } = {
       projectId,
       role: "visitor",
-      email: email.toLowerCase(),
+      email: email?.toLowerCase(),
       name,
-      username: username.toLowerCase(),
+      username: username?.toLowerCase(),
       avatar,
       bio,
       location: location
