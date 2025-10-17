@@ -1,3 +1,3 @@
-export const validUserRoles = ["admin", "editor", "visitor"] as const;
+export const validUserRoles = ["admin", "moderator", "visitor"] as const;
 
 export type IUserRole = (typeof validUserRoles)[number];

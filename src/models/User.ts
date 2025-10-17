@@ -16,7 +16,7 @@ export default class User
 {
   declare id: string;
   declare projectId: string;
-  declare role: "admin" | "editor" | "visitor";
+  declare role: "admin" | "moderator" | "visitor";
   declare foreignId: string | null;
   declare hash: string | null;
   declare salt: string | null;
@@ -53,7 +53,7 @@ export default class User
           allowNull: false,
         },
         role: {
-          type: DataTypes.ENUM("admin", "editor", "visitor"),
+          type: DataTypes.ENUM("admin", "moderator", "visitor"),
           allowNull: false,
           defaultValue: "visitor",
         },

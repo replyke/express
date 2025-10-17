@@ -6,7 +6,7 @@ declare global {
     interface Request {
       userId: string;
       project: IProject;
-      userRole: "admin" | "editor" | "visitor";
+      userRole: "admin" | "moderator" | "visitor";
       isMaster: boolean;
       isService: boolean;
     }

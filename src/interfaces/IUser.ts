@@ -6,7 +6,7 @@ interface IUserAttributes {
   id: string;
   projectId: string;
   foreignId: string | null;
-  role: "admin" | "editor" | "visitor";
+  role: "admin" | "moderator" | "visitor";
   hash: string | null;
   salt: string | null;
   email: string | null;
