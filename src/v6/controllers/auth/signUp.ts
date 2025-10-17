@@ -155,7 +155,7 @@ export default async (req: ExReq, res: ExRes) => {
       });
 
       const reducedAuthenticatedUser = reduceAuthenticatedUserDetails({
-        ...user,
+        ...user.toJSON(),
         suspensions: [],
       });
 
