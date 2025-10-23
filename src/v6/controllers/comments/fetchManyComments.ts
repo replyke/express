@@ -18,8 +18,8 @@ export default async (req: ExReq, res: ExRes) => {
     } = req.query;
     const projectId = req.project.id;
 
+    // Validate filter types when provided (all filters are now optional)
     if (
-      (!entityId && !userId && !parentId) ||
       (entityId && typeof entityId !== "string") ||
       (userId && typeof userId !== "string") ||
       (parentId && typeof parentId !== "string")
@@ -131,7 +131,7 @@ export default async (req: ExReq, res: ExRes) => {
       limit: limitAsNumber,
       offset,
       order, // Sorting by likesCount and/or createdAt
-      ...commentParams,
+      ...queryOptions,
     })) as IComment[];
 
     // Respond with the fetched comments.
