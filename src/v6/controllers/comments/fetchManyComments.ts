@@ -15,6 +15,7 @@ export default async (req: ExReq, res: ExRes) => {
       page = 1,
       limit = 10,
       includeEntity,
+      sourceId,
     } = req.query;
     const projectId = req.project.id;
 
@@ -22,7 +23,8 @@ export default async (req: ExReq, res: ExRes) => {
     if (
       (entityId && typeof entityId !== "string") ||
       (userId && typeof userId !== "string") ||
-      (parentId && typeof parentId !== "string")
+      (parentId && typeof parentId !== "string") ||
+      (sourceId && typeof sourceId !== "string")
     ) {
       res.status(400).json({
         error: "Invalid request data",
@@ -116,13 +118,22 @@ export default async (req: ExReq, res: ExRes) => {
       if (!Array.isArray(queryOptions.include)) {
         queryOptions.include = [];
       }
-      queryOptions.include.push({
+
+      const entityInclude: any = {
         model: Entity,
         as: "entity",
         attributes: {
           exclude: ["upvotes", "downvotes"], // Adjust as needed
         },
-      });
+      };
+
+      // If sourceId is provided, filter comments by entity's sourceId
+      if (sourceId && typeof sourceId === "string") {
+        entityInclude.where = { sourceId };
+        entityInclude.required = true; // Use INNER JOIN to filter comments
+      }
+
+      queryOptions.include.push(entityInclude);
     }
 
     // Fetch comments based on filters, pagination, and sorting.
