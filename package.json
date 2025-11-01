@@ -1,6 +1,6 @@
 {
   "name": "@replyke/express",
-  "version": "6.0.6",
+  "version": "6.0.7-beta.1",
   "private": false,
   "license": "Apache-2.0",
   "author": "Replyke, maintained by Yanay Tsabary",

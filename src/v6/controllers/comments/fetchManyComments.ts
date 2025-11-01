@@ -110,15 +110,14 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     // Clone the commentParams to safely modify includes
-    const queryOptions: any = { ...commentParams };
+    // Deep copy the include array to avoid mutating the original commentParams
+    const queryOptions: any = {
+      ...commentParams,
+      include: [...commentParams.include],
+    };
 
     // Conditionally include the Entity model if includeEntity is truthy
     if (includeEntity === "true") {
-      // Ensure our queryOptions.include is an array, then push the Entity model
-      if (!Array.isArray(queryOptions.include)) {
-        queryOptions.include = [];
-      }
-
       const entityInclude: any = {
         model: Entity,
         as: "entity",
