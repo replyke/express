@@ -14,9 +14,13 @@ import { AttachmentsFilters } from "../../../interfaces/entity-query-filters/Att
 import { LocationFilters } from "../../../interfaces/entity-query-filters/LocationFilters";
 import { getCoreConfig } from "../../../config";
 
-const configureSort = (sortBy: unknown) => {
+const configureSort = (sortBy: unknown, sortDir: unknown) => {
   const { sequelize } = getCoreConfig();
   let sort: any = [["createdAt", "DESC"]]; // Default is newest
+
+  // Validate and normalize sortDir
+  const direction = (typeof sortDir === 'string' && sortDir.toLowerCase() === 'asc') ? 'ASC' : 'DESC';
+
   if (sortBy === "top") {
     sort = [
       [
@@ -40,6 +44,27 @@ const configureSort = (sortBy: unknown) => {
         "DESC",
       ],
       ["createdAt", "DESC"], // Secondary sort by creation time for ties
+    ];
+  } else if (typeof sortBy === 'string' && sortBy.startsWith('metadata.')) {
+    // Extract metadata property name (e.g., "metadata.memberCount" -> "memberCount")
+    const propertyName = sortBy.substring(9); // Remove "metadata." prefix
+
+    // Validate property name to prevent SQL injection (alphanumeric + underscore only)
+    if (!/^[a-zA-Z0-9_]+$/.test(propertyName)) {
+      throw new Error(
+        `Invalid metadata property name: '${propertyName}'. Only alphanumeric characters and underscores are allowed.`
+      );
+    }
+
+    // Build sort expression with type detection and NULLS LAST
+    // Try numeric casting first, with NULLS LAST to sort entities without this property to the end
+    sort = [
+      [
+        sequelize.literal(`
+          ("Entity"."metadata"->>'${propertyName}')::numeric ${direction} NULLS LAST
+        `),
+      ],
+      ["createdAt", "DESC"], // Secondary sort for ties
     ];
   }
 
@@ -428,6 +453,7 @@ export default async (req: ExReq, res: ExRes) => {
       page = 1,
       limit = 10,
       sortBy = "hot",
+      sortDir,
       timeFrame,
       sourceId,
       userId, // Filter posts by a specific account ID if provided
@@ -469,7 +495,7 @@ export default async (req: ExReq, res: ExRes) => {
     }
 
     // Define the sort filter based on 'sort_by' query parameter.
-    const sort = configureSort(sortBy as string);
+    const sort = configureSort(sortBy as string, sortDir);
 
     // Set up the query filters
     const query: any = { projectId };
